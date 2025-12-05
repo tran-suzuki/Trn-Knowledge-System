@@ -1,0 +1,10 @@
+node_modules
+vendor
+storage
+bootstrap
+public/build
+public/hot
+dist
+.idea
+.vscode
+*.log
