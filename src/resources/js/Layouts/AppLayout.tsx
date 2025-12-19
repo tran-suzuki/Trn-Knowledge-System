@@ -1,10 +1,25 @@
-import { PropsWithChildren } from 'react';
+import React from 'react';
+import Sidebar from '@/Components/Common/Sidebar';
+import Header from '@/Components/Common/Header';
+import { Toaster } from 'react-hot-toast';
 
-export default function AppLayout({ children }: PropsWithChildren) {
+interface AppLayoutProps {
+	title?: string;
+	children: React.ReactNode;
+}
+
+const AppLayout: React.FC<AppLayoutProps> = ({ title, children }) => {
 	return (
-		<div className="p-6 bg-gray-50 min-h-screen">
-			<header className="mb-4 p-4 bg-black text-white text-xl font-bold">AI Knowledge System</header>
-			<main>{children}</main>
+		<div className="min-h-screen flex bg-gray-50">
+			<Toaster position="top-right" />
+			<Sidebar />
+			<div className="flex flex-col flex-1">
+				{title && <Header title={title} />}
+
+				<main className="flex-1 p-6 bg-gray-50">{children}</main>
+			</div>
 		</div>
 	);
-}
+};
+
+export default AppLayout;
