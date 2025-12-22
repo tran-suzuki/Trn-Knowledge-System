@@ -8,7 +8,7 @@ import { groupMemberRepository } from '@/infrastructure/groupMember/groupMemberR
 interface ChangeSelectedMembersRoleModalProps {
 	open: boolean;
 	onClose: () => void;
-	onSuccess: () => Promise<void>;
+	onSuccess: () => void;
 }
 
 const ChangeSelectedMembersRoleModal: React.FC<ChangeSelectedMembersRoleModalProps> = ({
@@ -16,13 +16,13 @@ const ChangeSelectedMembersRoleModal: React.FC<ChangeSelectedMembersRoleModalPro
 	onClose,
 	onSuccess,
 }) => {
-	if (!open) return null;
-
 	const { groupMembers } = useGroupMemberListStore();
 	const { selectedGroupDisplayId } = useGroupListStore();
 
 	const [memberRole, setMemberRole] = useState<string>('manager');
 	const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
+
+	if (!open) return null;
 
 	const isAllChecked = groupMembers.length > 0 && groupMembers.length === selectedMemberIds.length;
 
@@ -83,16 +83,24 @@ const ChangeSelectedMembersRoleModal: React.FC<ChangeSelectedMembersRoleModalPro
 				</div>
 
 				<div className="overflow-x-auto mb-6 max-h-[60vh]">
-					<table className="min-w-full divide-y divide-gray-200">
+					<table className="min-w-full table-fixed divide-y divide-gray-200">
 						<thead className="bg-gray-50">
 							<tr>
 								<th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase">
 									<input type="checkbox" checked={isAllChecked} onChange={handleToggleAll} />
 								</th>
-								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">名前</th>
-								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">メールアドレス</th>
-								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">所属グループ</th>
-								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ステータス</th>
+								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+									名前
+								</th>
+								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+									メールアドレス
+								</th>
+								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+									所属グループ
+								</th>
+								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
+									ステータス
+								</th>
 							</tr>
 						</thead>
 
@@ -109,10 +117,10 @@ const ChangeSelectedMembersRoleModal: React.FC<ChangeSelectedMembersRoleModalPro
 											/>
 										</td>
 
-										<td className="px-4 py-2 text-sm font-medium text-gray-900">{member.name}</td>
+										<td className="px-4 py-2 text-sm font-medium text-gray-900 whitespace-nowrap">{member.name}</td>
 										<td className="px-4 py-2 text-sm text-gray-500">{member.email}</td>
 										<td className="px-4 py-2 text-sm text-gray-500">{member?.groups?.map((g) => g.name).join(', ')}</td>
-										<td className="px-4 py-2 text-sm text-gray-700">{member.groupRole}</td>
+										<td className="px-4 py-2 text-sm text-gray-700 whitespace-nowrap">{member.groupRole}</td>
 									</tr>
 								);
 							})}

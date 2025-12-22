@@ -6,18 +6,18 @@ import { jaValidation as msg } from '@/lang/ja';
 import { useGroupFormStore } from '@/stores/group/groupFormStore';
 import { validateGroupForm } from '@/domains/group/groupFormValidation';
 import { groupRepository } from '@/infrastructure/group/groupRepository';
+import type { Errors } from '@inertiajs/core';
 
-interface GroupFormProps {}
-
-const GroupForm: React.FC<GroupFormProps> = ({}) => {
+const GroupForm: React.FC = () => {
 	const { mode, companies, statuses, values, setField, clearFields, errors, setErrors, clearErrors } =
 		useGroupFormStore();
 
 	useEffect(() => {
 		if (!companies.length) return;
-		if (values.fkCompanyId !== null) return;
-		setField('fkCompanyId', Number(companies[0]['id']) ?? null);
-	}, [companies]);
+		if (!values.fkCompanyId) {
+			setField('fkCompanyId', Number(companies[0]['id']));
+		}
+	}, [companies, setField, values?.fkCompanyId]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -47,8 +47,8 @@ const GroupForm: React.FC<GroupFormProps> = ({}) => {
 				clearFields();
 				toast.success(msg.group.created);
 			},
-			onError: (error: any) => {
-				toast.error(error?.response?.data?.message || error?.register || msg.group.createFailed);
+			onError: () => {
+				toast.error(msg.group.createFailed);
 			},
 		});
 	};
@@ -112,7 +112,7 @@ const GroupForm: React.FC<GroupFormProps> = ({}) => {
 								name="status"
 								value={s.value}
 								checked={values.status === s.value}
-								onChange={() => setField('status', s.value as any)}
+								onChange={() => setField('status', s.value as string)}
 								className="h-4 w-4"
 							/>
 							<span>{s.label}</span>

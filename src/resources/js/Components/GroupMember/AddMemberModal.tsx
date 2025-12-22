@@ -12,14 +12,14 @@ interface AddMemberModalProps {
 }
 
 const AddMemberModal: React.FC<AddMemberModalProps> = ({ open, onClose }) => {
-	if (!open) return null;
-
 	const { members } = useGroupMemberListStore();
 	const { selectedGroupDisplayId, keyword } = useGroupListStore();
 
 	const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
 	const [searchTerm, setSearchTerm] = useState<string>('');
 	const [searchCondition, setSearchCondition] = useState<string>('');
+
+	if (!open) return null;
 
 	const handleSearch = () => {
 		setSearchTerm(searchCondition);
@@ -69,7 +69,6 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ open, onClose }) => {
 		const addMemberRes = await groupMemberRepository.addMember(selectedGroupDisplayId, selectedMemberIds);
 		if (addMemberRes.status) {
 			groupRepository.searchList(keyword);
-
 			toast.success(addMemberRes.message || msg.groupMember.created);
 		} else {
 			toast.error(addMemberRes.message || msg.groupMember.createFailed);
@@ -102,24 +101,31 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ open, onClose }) => {
 					</div>
 				</div>
 
-				<div className="overflow-x-auto mb-6 max-h-[60vh]">
+				<div className="overflow-y-auto mb-6 max-h-[60vh]">
 					<table className="w-full table-fixed divide-y divide-gray-200">
 						<thead className="bg-gray-50">
 							<tr>
-								<th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+								<th className="w-10 px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
 									<input type="checkbox" checked={isAllChecked} onChange={handleToggleAll} />
 								</th>
-								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名前</th>
-								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+
+								<th className="w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+									名前
+								</th>
+
+								<th className="w-56 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 									メールアドレス
 								</th>
-								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+
+								<th className="w-28 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 									ロール
 								</th>
+
 								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 									所属グループ
 								</th>
-								<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+
+								<th className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 									ステータス
 								</th>
 							</tr>
@@ -128,6 +134,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ open, onClose }) => {
 						<tbody className="bg-white divide-y divide-gray-200">
 							{filteredMembers.map((member) => {
 								const checked = selectedMemberIds.includes(member.displayId);
+
 								return (
 									<tr key={member.displayId}>
 										<td className="px-3 py-2 text-center">
@@ -137,12 +144,21 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ open, onClose }) => {
 												onChange={() => handleCheckboxToggle(member.displayId)}
 											/>
 										</td>
+
 										<td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
-										<td className="px-4 py-3 text-sm text-gray-700 break-all">{member.email}</td>
+
+										<td className="px-4 py-2 text-sm text-gray-700 whitespace-normal break-words">{member.email}</td>
+
 										<td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{member.role}</td>
-										<td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 break-all">
-											{member.groups.map((group) => group.name).join(', ')}
+
+										<td className="px-4 py-2 text-sm text-gray-500 whitespace-normal break-words">
+											<div className="flex flex-wrap gap-x-2 gap-y-1">
+												{member.groups.map((group) => (
+													<span key={group.name}>{group.name}</span>
+												))}
+											</div>
 										</td>
+
 										<td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{member.status}</td>
 									</tr>
 								);

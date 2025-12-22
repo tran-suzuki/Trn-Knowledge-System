@@ -163,7 +163,7 @@ class GroupMemberController extends Controller {
 			$input = new GroupMembersChangeRoleInputDto(
 				groupId: $mtGroup->id,
 				role: $request->input('role'),
-				memberId: $user->id,
+				memberId: $member->id,
 			);
 
 			$this->groupMemberChangeRoleService->handle($input);

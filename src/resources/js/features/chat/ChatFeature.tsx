@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Send } from 'lucide-react';
-import type { ResponseDto } from '@/types/user/userList';
 import ReactMarkdown from 'react-markdown';
 import { router } from '@inertiajs/react';
-
-interface ChatFeatureProps {
-	response: ResponseDto;
-}
 
 const OPENROUTER_API_KEY = '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'; // TODO: 環境変数で管理
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MODEL_NAME = 'openai/gpt-oss-20b:free'; // 使用するモデル
 
-export const ChatFeature: React.FC<ChatFeatureProps> = ({ response }) => {
+export const ChatFeature: React.FC = () => {
 	const [messages, setMessages] = useState<Array<{ type: 'user' | 'ai'; text: string }>>([
 		{ type: 'ai', text: '何か質問はありますか？' },
 	]);

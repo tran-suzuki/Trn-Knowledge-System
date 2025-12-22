@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { jaValidation as msg } from '@/lang/ja';
 import { useGroupListStore } from '@/stores/group/groupListStore';
@@ -9,7 +9,7 @@ interface ChangeSingleMemberRoleModalProps {
 	displayId: string;
 	open: boolean;
 	onClose: () => void;
-	onSuccess: () => Promise<void>;
+	onSuccess: () => void;
 }
 
 const ChangeSingleMemberRoleModal: React.FC<ChangeSingleMemberRoleModalProps> = ({
@@ -18,20 +18,13 @@ const ChangeSingleMemberRoleModal: React.FC<ChangeSingleMemberRoleModalProps> = 
 	onClose,
 	onSuccess,
 }) => {
-	if (!open) return null;
-
 	const { groupMembers } = useGroupMemberListStore();
 	const { selectedGroupDisplayId } = useGroupListStore();
-
 	const targetMember = groupMembers?.find((member) => member.displayId === displayId);
 
-	const [selectedRole, setSelectedRole] = useState<string>();
+	const [selectedRole, setSelectedRole] = useState<string>(targetMember?.groupRole ?? 'guest');
 
-	useEffect(() => {
-		if (targetMember) {
-			setSelectedRole(targetMember.groupRole);
-		}
-	}, [targetMember]);
+	if (!open) return null;
 
 	const handleConfirm = async () => {
 		const changeMemberRolesRes = await groupMemberRepository.changeMemberRole(
@@ -40,7 +33,7 @@ const ChangeSingleMemberRoleModal: React.FC<ChangeSingleMemberRoleModalProps> = 
 			selectedRole,
 		);
 		if (changeMemberRolesRes.status) {
-			await onSuccess();
+			onSuccess();
 			toast.success(changeMemberRolesRes.message || msg.groupMember.updated);
 		} else {
 			toast.error(changeMemberRolesRes.message || msg.groupMember.updateFailed);

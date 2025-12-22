@@ -1,6 +1,5 @@
 import React from 'react';
 import { RecentChat } from '../types/Dashboard';
-import { route } from 'ziggy-js';
 
 const RecentChatHistory: React.FC = () => {
 	const recentChats: RecentChat[] = [
@@ -24,13 +23,9 @@ const RecentChatHistory: React.FC = () => {
 		},
 	];
 
-	const fetchRecentChats = () => {
-		console.log('Fetching recent chats...');
-	};
-
 	React.useEffect(() => {}, []);
 
-	const openChatSession = (chatId: string) => {};
+	const openChatSession = () => {};
 
 	return (
 		<div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

@@ -1,4 +1,4 @@
-import type { UserRole, GroupRole } from '@/Types/common/role';
+import type { UserRole } from '@/Types/common/role';
 import type { Status } from '@/types/common/status';
 
 export interface GroupMemberPermissionDto {

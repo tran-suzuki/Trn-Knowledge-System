@@ -3,7 +3,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import type { GroupFormPageDto } from '@/types/group/groupForm';
 import { GroupFormFeature } from '@/features/group/GroupFormFeature';
 
-interface PageProps extends GroupFormPageDto {}
+type PageProps = GroupFormPageDto;
 
 const FormPage: React.FC<PageProps> = (props) => {
 	const title = 'グループ登録';
