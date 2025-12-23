@@ -63,7 +63,6 @@ export const userRepository = {
 	},
 
 	async checkPassword(displayId: string, password: string) {
-		console.log('password', password);
 		const res = await axios.post(route('user.checkPassword', displayId), {
 			password: password.trim(),
 		});

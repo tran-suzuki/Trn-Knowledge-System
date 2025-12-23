@@ -17,7 +17,7 @@ class UserConfirmEmailChangeService {
 			$user = $this->userRepository->findByEmailChangeToken($token);
 
 			if (!$user) {
-				throw new RuntimeException('Invalid email change token.');
+				throw new RuntimeException(__('user.invalid_email_change_token'));
 			}
 
 			$user->email              = $user->newEmail;

@@ -24,4 +24,10 @@ interface UserRepositoryInterface {
 
 	public function updateEmailChange(User $user): void;
 
+	public function mapIdsByDisplayIds(array $displayIds): array;
+
+	public function mapIdByDisplayId(string $displayId): int;
+
+	public function listOutsideGroupByDisplayId(string $groupId): UserListResult;
+
 }

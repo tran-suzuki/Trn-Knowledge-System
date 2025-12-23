@@ -49,7 +49,7 @@ class MtUser extends Authenticatable {
 	}
 
 	public function groupUsers() {
-		return $this->hasMany(MtGroupUser::class, 'fk_user_id');
+		return $this->hasMany(DtGroupUser::class, 'fk_user_id');
 	}
 	public function scopeActiveForAuth($query) {
 		return $query

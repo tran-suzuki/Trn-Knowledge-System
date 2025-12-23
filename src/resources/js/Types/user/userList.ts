@@ -1,4 +1,4 @@
-import type { UserRole } from '@/types/user/userRole';
+import type { UserRole } from '@/Types/common/role';
 import type { Status } from '@/types/common/status';
 
 export type UserGroupDto = { id: number; name: string };

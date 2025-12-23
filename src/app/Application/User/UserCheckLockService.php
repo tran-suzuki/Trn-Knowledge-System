@@ -11,7 +11,7 @@ class UserCheckLockService {
 	 */
 	public function handle(MtUser $user, int $requestLockVersion, bool $updateMode): void {
 		if ($user->lock_version !== $requestLockVersion) {
-			throw new OptimisticException($updateMode ? '他の端末で更新されました。再度、選択してください。　' : '他のユーザーによって更新されました。再度、選択してください。');
+			throw new OptimisticException($updateMode ? __('user.updated_on_other_device') : __('user.updated_by_other_user'));
 		}
 	}
 }

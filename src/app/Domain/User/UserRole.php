@@ -19,6 +19,10 @@ final class UserRole {
 		return $this->value;
 	}
 
+	public static function fromNullable(?string $value): self {
+		return new self($value ?? self::USER);
+	}
+
 	public function isAdmin(): bool {return $this->value === self::ADMIN;}
 	public function isManager(): bool {return $this->value === self::MANAGER;}
 	public function isUser(): bool {return $this->value === self::USER;}

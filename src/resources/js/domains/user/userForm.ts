@@ -1,4 +1,4 @@
-import type { UserRole } from '@/domains/user/userRole';
+import type { UserRole } from '@/domains/common/role';
 import type { Status } from '@/domains/common/status';
 
 export interface CompanyOption {

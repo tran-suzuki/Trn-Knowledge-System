@@ -34,12 +34,22 @@ class MtGroup extends Model {
 	}
 
 	public function groupUsers() {
-		return $this->hasMany(MtGroupUser::class, 'fk_group_id');
+		return $this->hasMany(DtGroupUser::class, 'fk_group_id');
 	}
 
 	public function users() {
-		return $this->belongsToMany(User::class, 'dt_group_user', 'fk_group_id', 'fk_user_id')
+		return $this->belongsToMany(MtUser::class, 'dt_group_user', 'fk_group_id', 'fk_user_id')
 			->withPivot(['role', 'fk_created_by'])
 			->withTimestamps();
+	}
+
+	public function members() {
+		return $this->belongsToMany(MtUser::class, 'dt_group_user', 'fk_group_id', 'fk_user_id')
+			->withPivot(['role', 'fk_created_by'])
+			->withTimestamps();
+	}
+
+	public function documents() {
+		return $this->hasMany(DtDocument::class, 'fk_group_id');
 	}
 }

@@ -219,4 +219,69 @@ class UserRepository implements UserRepositoryInterface {
 
 		$model->save();
 	}
+
+	public function mapIdsByDisplayIds(array $displayIds): array {
+		if ($displayIds === []) {
+			return [];
+		}
+
+		return MtUser::query()
+			->whereNull('mt_users.deleted_at')
+			->whereIn('mt_users.display_id', $displayIds)
+			->pluck('mt_users.id', 'mt_users.display_id')
+			->toArray();
+	}
+
+	public function mapIdByDisplayId(string $displayId): int {
+		$ids = $this->mapIdsByDisplayIds([$displayId]);
+
+		return $ids[$displayId];
+	}
+
+	public function listOutsideGroupByDisplayId(string $groupId): UserListResult {
+		$models = MtUser::query()
+			->whereNull('mt_users.deleted_at')
+			->with([
+				'groups'     => function ($q): void {
+					$q->whereNull('mt_groups.deleted_at');
+				},
+				'groupUsers' => function ($q): void {
+					$q->whereNull('dt_group_user.deleted_at');
+				},
+			])
+
+			->whereDoesntHave('groupUsers', function ($sub) use ($groupId): void {
+				$sub->whereNull('dt_group_user.deleted_at')
+					->where('fk_group_id', $groupId);
+			})->get();
+
+		$items = $models->map(function (MtUser $model) {
+			$groups = $model->groups
+				->map(fn($g) => new UserGroup(
+					id: (int) $g->id,
+					name: (string) $g->name,
+				))
+				->all();
+
+			return User::list(
+				id: (int) $model->id,
+				fkCompanyId: (int) $model->fk_company_id,
+				name: (string) $model->name,
+				email: (string) $model->email,
+				role: UserRole::from($model->role),
+				status: $model->status,
+				lockVersion: (int) ($model->lock_version ?? 0),
+				groups: $groups,
+				displayId: (string) $model->display_id
+			);
+		})->all();
+
+		return new UserListResult(
+			items: $items,
+			currentPage: 10,
+			perPage: 1,
+			total: 1,
+			lastPage: 1,
+		);
+	}
 }

@@ -61,7 +61,7 @@ class UserRegisterService {
 			try {
 				$mtUser->notify(new UserRegisteredNotification());
 			} catch (\Throwable $e) {
-				Log::error('User registered but mail send failed', [
+				\Log::error('User registered but mail send failed', [
 					'id'    => $mtUser->id,
 					'error' => $e->getMessage(),
 				]);

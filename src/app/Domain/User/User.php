@@ -109,7 +109,7 @@ final class User {
 
 	public function assertLockVersion(int $requestLockVersion): void {
 		if ($this->lockVersion !== $requestLockVersion) {
-			throw new OptimisticException('他のユーザーによって更新されました。再度、選択してください。');
+			throw new OptimisticException(__('user.updated_by_other_user'));
 		}
 	}
 

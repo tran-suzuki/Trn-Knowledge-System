@@ -30,7 +30,7 @@ export const jaValidation = {
 		format: '新しいメールアドレスは形式に沿って入力してください。',
 		length: '新しいメールアドレスは5文字以上、255文字以内で入力してください。',
 	},
-
+	
 	password: {
 		required: 'パスワードを入力してください。',
 		length: 'パスワードは6文字以上、255文字以内で入力してください。',
@@ -48,5 +48,34 @@ export const jaValidation = {
 
 	status: {
 		required: 'ステータスを選択してください。',
+	},
+
+	groupName: {
+		required: '氏名を選択してください。',
+	},
+
+	group: {
+		noData: '対象のデータが存在しません。',
+		created: 'グループ情報を登録しました。',
+		createFailed: '登録に失敗しました。',
+		noExist: '対象のデータが存在しません。',
+		deleted: 'グループ情報を削除しました。',
+		deleteFailed: '削除に失敗しました。',
+		updated: 'グループ情報を更新しました。',
+		updateFailed: '更新に失敗しました。',
+		checkLockVersion: '他のユーザーによって更新されました。再度、選択してください。',
+	},
+
+	groupMember: {
+		noData: '対象のデータが存在しません。',
+		created: 'メンバー情報を登録しました。',
+		createFailed: '登録に失敗しました。',
+		noExist: '対象のデータが存在しません。',
+		deleted: 'メンバー情報を削除しました。',
+		deleteFailed: '削除に失敗しました。',
+		updated: 'メンバー情報を更新しました。',
+		updateFailed: '更新に失敗しました。',
+		checkLockVersion: '他のユーザーによって更新されました。再度、選択してください。',
+
 	},
 };
