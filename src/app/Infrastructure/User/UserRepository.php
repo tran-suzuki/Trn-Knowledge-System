@@ -121,7 +121,7 @@ class UserRepository implements UserRepositoryInterface {
 
 		if ($affected === 0) {
 			$exists = MtUser::query()
-				->where('id', $userId)
+				->where('id', $input->id)
 				->exists();
 
 			if (!$exists) {

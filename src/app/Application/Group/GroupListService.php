@@ -7,7 +7,7 @@ use App\Application\Group\Dto\Out\GroupListResultDto;
 use App\Application\Group\Dto\View\GroupListItemDto;
 use App\Domain\Group\GroupRepositoryInterface;
 use App\Domain\Group\In\GroupListInput;
-use App\Domain\User\UserRole;
+use App\Domain\User\View\UserRole;
 
 class GroupListService {
 	public function __construct(

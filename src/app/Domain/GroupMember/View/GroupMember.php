@@ -3,7 +3,7 @@
 namespace App\Domain\GroupMember\View;
 
 use App\Domain\Group\View\GroupRole;
-use App\Domain\User\UserRole;
+use App\Domain\User\View\UserRole;
 
 final class GroupMember {
 	public function __construct(

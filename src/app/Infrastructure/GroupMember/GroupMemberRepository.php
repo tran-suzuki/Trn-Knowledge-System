@@ -12,8 +12,8 @@ use App\Domain\GroupMember\In\GroupMembersStoreInput;
 use App\Domain\GroupMember\Out\GroupMemberListResult;
 use App\Domain\GroupMember\View\GroupMember;
 use App\Domain\Group\View\GroupRole;
-use App\Domain\User\UserGroup;
-use App\Domain\User\UserRole;
+use App\Domain\User\View\UserGroup;
+use App\Domain\User\View\UserRole;
 use App\Models\DtGroupUser;
 
 final class GroupMemberRepository implements GroupMemberRepositoryInterface {

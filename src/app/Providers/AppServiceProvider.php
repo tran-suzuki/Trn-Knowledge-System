@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Domain\Group\View\GroupRole;
-use App\Domain\User\UserRole;
+use App\Domain\User\View\UserRole;
 use App\Models\MtGroup;
 use App\Models\MtUser;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
