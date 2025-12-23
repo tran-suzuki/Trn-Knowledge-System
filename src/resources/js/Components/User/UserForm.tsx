@@ -1,30 +1,16 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
-
-import type { UserFormValues, UserFormOptions } from '@/domains/user/userForm';
-import { UserFormErrors } from '@/domains/user/userFormValidation';
+import { useUserFormStore } from '@/stores/user/userFormStore';
 
 interface UserFormProps {
-	mode: 'create' | 'edit';
-	values: UserFormValues;
-	options: UserFormOptions;
-	errors: UserFormErrors;
 	onSubmit: () => void;
 	onCancel?: () => void;
-	onChangeField: <K extends keyof UserFormValues>(field: K, value: UserFormValues[K]) => void;
 	onDelete?: () => void;
 }
 
-const UserForm: React.FC<UserFormProps> = ({
-	mode,
-	values,
-	options,
-	errors,
-	onSubmit,
-	onCancel,
-	onChangeField,
-	onDelete,
-}) => {
+const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, onDelete }) => {
+	const { mode, values, options, errors, permissions, setField } = useUserFormStore();
+
 	const [showPassword, setShowPassword] = useState(false);
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -42,7 +28,7 @@ const UserForm: React.FC<UserFormProps> = ({
 				<select
 					className="w-full border rounded px-3 py-2"
 					value={values.fkCompanyId ?? ''}
-					onChange={(e) => onChangeField('fkCompanyId', e.target.value === '' ? null : Number(e.target.value))}
+					onChange={(e) => setField('fkCompanyId', e.target.value === '' ? null : Number(e.target.value))}
 				>
 					{options.companies.map((c) => (
 						<option key={c.id} value={c.id}>
@@ -63,27 +49,11 @@ const UserForm: React.FC<UserFormProps> = ({
 					className="w-full border rounded px-3 py-2"
 					required
 					value={values.name}
-					onChange={(e) => onChangeField('name', e.target.value)}
+					onChange={(e) => setField('name', e.target.value)}
 					placeholder="山田 太郎"
 				/>
 				{errors?.name && <p className="text-red-500 text-sm">{errors.name}</p>}
 			</div>
-
-			{/* 3. 氏名（カナ） */}
-			{/* <div>
-				<label className="block text-sm mb-1">
-					氏名（カナ）
-					<span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs">必須</span>
-				</label>
-				<input
-					className="w-full border rounded px-3 py-2"
-					required
-					value={values.nameKana}
-					onChange={(e) => onChangeField('nameKana', e.target.value)}
-					placeholder="ヤマダ タロウ"
-				/>
-				{errors?.nameKana && <p className="text-red-500 text-sm">{errors.nameKana}</p>}
-			</div> */}
 
 			{/* 4. メールアドレス */}
 			<div>
@@ -96,7 +66,7 @@ const UserForm: React.FC<UserFormProps> = ({
 					type="email"
 					required
 					value={values.email}
-					onChange={(e) => onChangeField('email', e.target.value)}
+					onChange={(e) => setField('email', e.target.value)}
 					placeholder="taro@example.com"
 				/>
 				{errors?.email && <p className="text-red-500 text-sm">{errors.email}</p>}
@@ -114,7 +84,7 @@ const UserForm: React.FC<UserFormProps> = ({
 						type={showPassword ? 'text' : 'password'}
 						required={mode === 'create'}
 						value={values.password}
-						onChange={(e) => onChangeField('password', e.target.value)}
+						onChange={(e) => setField('password', e.target.value)}
 						autoComplete="new-password"
 					/>
 					<button
@@ -135,11 +105,12 @@ const UserForm: React.FC<UserFormProps> = ({
 					className="w-full border rounded px-3 py-2"
 					type="email"
 					value={values.newEmail ?? ''}
-					onChange={(e) => onChangeField('newEmail', e.target.value || null)}
+					onChange={(e) => setField('newEmail', e.target.value || null)}
 					placeholder="new-email@example.com"
 				/>
 			</div>
 			{errors?.newEmail && <p className="text-red-500 text-sm">{errors.newEmail}</p>}
+
 			{/* 7. ロール */}
 			<div>
 				<label className="block text-sm mb-1">
@@ -149,7 +120,8 @@ const UserForm: React.FC<UserFormProps> = ({
 				<select
 					className="w-full border rounded px-3 py-2"
 					value={values.role}
-					onChange={(e) => onChangeField('role', e.target.value as any)}
+					onChange={(e) => setField('role', e.target.value as any)}
+					disabled={!permissions?.canChangeRole}
 				>
 					{options.roles.map((r) => (
 						<option key={r.value} value={r.value}>
@@ -175,7 +147,7 @@ const UserForm: React.FC<UserFormProps> = ({
 								name="status"
 								value={s.value}
 								checked={values.status === s.value}
-								onChange={() => onChangeField('status', s.value as any)}
+								onChange={() => setField('status', s.value as any)}
 								className="h-4 w-4"
 							/>
 							<span>{s.label}</span>

@@ -2,13 +2,15 @@
 
 namespace App\Infrastructure\User;
 
-use App\Domain\User\User;
-use App\Domain\User\UserGroup;
-use App\Domain\User\UserListFilter;
-use App\Domain\User\UserListResult;
+use App\Domain\User\In\UserDeleteInput;
+use App\Domain\User\In\UserListFilter;
+use App\Domain\User\Out\UserListResult;
 use App\Domain\User\UserRepositoryInterface;
-use App\Domain\User\UserRole;
+use App\Domain\User\View\User;
+use App\Domain\User\View\UserGroup;
+use App\Domain\User\View\UserRole;
 use App\Models\MtUser;
+use App\Notifications\UserRegisteredNotification;
 use Illuminate\Support\Facades\DB;
 
 class UserRepository implements UserRepositoryInterface {
@@ -77,11 +79,41 @@ class UserRepository implements UserRepositoryInterface {
 		);
 	}
 
-	public function delete(int $userId, int $lockVersion): void {
+	public function nextId(): int {
+		$maxId = MtUser::max('id');
+
+		return $maxId ? $maxId + 1 : 1;
+	}
+
+	public function create(User $user): void {
+		MtUser::create([
+			'id'                        => $user->id,
+			'fk_company_id'             => $user->fkCompanyId,
+			'name'                      => $user->name,
+			'email'                     => $user->email,
+			'role'                      => $user->role->value(),
+			'status'                    => $user->status,
+			'password'                  => $user->passwordHash,
+			'new_email'                 => $user->newEmail,
+			'two_factor_secret'         => $user->twoFactorSecret,
+			'two_factor_recovery_codes' => encrypt(json_encode($user->twoFactorRecoveryCodes())),
+			'display_id'                => $user->displayId,
+			'created_at'                => now(),
+			'updated_at'                => now(),
+		]);
+	}
+
+	public function notifyRegistered(int $userId): void {
+		$user = MtUser::query()->findOrFail($userId);
+
+		$user->notify(new UserRegisteredNotification());
+	}
+
+	public function delete(UserDeleteInput $input): void {
 		$affected = MtUser::query()
-			->where('id', $userId)
+			->where('id', $input->id)
 			->whereNull('deleted_at')
-			->where('lock_version', $lockVersion)
+			->where('lock_version', $input->lockVersion)
 			->update([
 				'deleted_at'   => now(),
 				'lock_version' => DB::raw('lock_version + 1'),
@@ -100,31 +132,6 @@ class UserRepository implements UserRepositoryInterface {
 				'UserRepository 他のユーザーによって更新されました。再度、選択してください。'
 			);
 		}
-	}
-
-	public function nextId(): int {
-		$maxId = MtUser::max('id');
-
-		return $maxId ? $maxId + 1 : 1;
-	}
-
-	public function create(User $user): void {
-
-		MtUser::create([
-			'id'                        => $user->id,
-			'fk_company_id'             => $user->fkCompanyId,
-			'name'                      => $user->name,
-			'email'                     => $user->email,
-			'role'                      => $user->role->value(),
-			'status'                    => $user->status,
-			'password'                  => $user->passwordHash,
-			'new_email'                 => $user->newEmail,
-			'two_factor_secret'         => $user->twoFactorSecret,
-			'two_factor_recovery_codes' => encrypt(json_encode($user->twoFactorRecoveryCodes())),
-			'display_id'                => $user->displayId,
-			'created_at'                => now(),
-			'updated_at'                => now(),
-		]);
 	}
 
 	public function findByIdWithLock(int $id): User {

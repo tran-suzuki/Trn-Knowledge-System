@@ -1,36 +1,25 @@
-// src/resources/js/infrastructure/user/userFormMapper.ts
-
-import type { UserFormPageDto, UserFormSubmitDto } from '@/types/user/userForm';
-
+import type { UserFormPageDto, UserFormSubmitDto} from '@/types/user/userForm';
+import type { SelectOption } from '@/domains/common/selectOption';
 import type {
 	UserFormDomainData,
 	UserFormOptions,
 	UserFormValues,
 	CompanyOption,
-	SelectOption,
+	UserFormPermissions,
 } from '@/domains/user/userForm';
 
-/**
- * Map companies DTO -> domain
- */
 const mapCompaniesDtoToDomain = (companies: UserFormPageDto['companies']): CompanyOption[] =>
 	companies.map((c) => ({
 		id: c.id,
 		name: c.name,
 	}));
 
-/**
- * Map select options DTO -> domain
- */
 const mapSelectOptionsDtoToDomain = (options: UserFormPageDto['roles']): SelectOption[] =>
 	options.map((o) => ({
 		value: o.value,
 		label: o.label,
 	}));
 
-/**
- * DTO -> Domain (Page initial data)
- */
 export const mapUserFormPageDtoToDomain = (dto: UserFormPageDto): UserFormDomainData => {
 	const mode = dto.user ? ('edit' as const) : ('create' as const);
 
@@ -47,19 +36,13 @@ export const mapUserFormPageDtoToDomain = (dto: UserFormPageDto): UserFormDomain
 		values = {
 			id: dto.user.id,
 			fkCompanyId: dto.user.fk_company_id,
-
 			name: dto.user.name,
-			//nameKana: dto.user.name_kana,
-
 			email: dto.user.email,
 			newEmail: dto.user.new_email ?? null,
-
 			password: '',
 			passwordConfirmation: '',
-
 			role: dto.user.role,
 			status: dto.user.status,
-
 			lockVersion: dto.user.lock_version,
 			displayId: dto.user.display_id,
 		};
@@ -71,47 +54,36 @@ export const mapUserFormPageDtoToDomain = (dto: UserFormPageDto): UserFormDomain
 
 		values = {
 			fkCompanyId: defaultCompanyId,
-
 			name: '',
-			//nameKana: '',
-
 			email: '',
 			newEmail: null,
-
 			password: '',
 			passwordConfirmation: '',
-
 			role: defaultRole,
 			status: defaultStatus,
 		};
 	}
 
+	const permissions: UserFormPermissions = dto.permissions ? dto.permissions : { canChangeRole: true };
+	console.log('permissions', permissions);
 	return {
 		mode,
 		values,
 		options,
+		permissions,
 	};
 };
 
-/**
- * Domain values -> DTO submit (create/update)
- */
 export const mapUserFormValuesToSubmitDto = (values: UserFormValues): UserFormSubmitDto => {
 	return {
 		fk_company_id: values.fkCompanyId,
-
 		name: values.name,
-		//name_kana: values.nameKana,
-
 		email: values.email,
 		new_email: values.newEmail ?? null,
-
 		password: values.password ? values.password : undefined,
 		password_confirmation: values.password ? values.passwordConfirmation : undefined,
-
 		role: values.role,
 		status: values.status,
-
 		lock_version: values.lockVersion,
 	};
 };

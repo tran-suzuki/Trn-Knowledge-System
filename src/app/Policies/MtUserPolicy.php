@@ -56,7 +56,7 @@ class MtUserPolicy {
 		return false;
 	}
 
-	public function changeRole(MtUser $mtUser, MtUser $target): bool {
+	public function changeRole(MtUser $mtUser): bool {
 		return $mtUser->role === 'admin';
 	}
 

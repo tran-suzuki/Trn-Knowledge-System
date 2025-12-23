@@ -16,7 +16,7 @@ const menuItems: MenuItem[] = [
 	{ icon: Book, label: '社内Wiki', routeName: 'wiki.index' },
 	{ icon: Building, label: '会社管理', routeName: 'companies.index' },
 	{ icon: UserSquare, label: 'グループ管理', routeName: 'groups.index' },
-	{ icon: Users, label: 'ユーザー管理', routeName: 'user.index' },
+	{ icon: Users, label: 'ユーザー管理', routeName: 'users.index' },
 	{ icon: FileText, label: '監査ログ', routeName: 'audit-log.index' },
 ];
 

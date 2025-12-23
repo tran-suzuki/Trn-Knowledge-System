@@ -1,28 +1,29 @@
 import type { UserRole } from '@/domains/common/role';
 import type { Status } from '@/domains/common/status';
+import type { SelectOption } from '@/domains/common/selectOption';
 
-export interface UserGroup {
+export interface UserListUserGroup {
 	id: number;
 	name: string;
 }
 
-export interface User {
+export interface UserListFilters {
+	keyword: string | null;
+	role: string | null;
+	status: string | null;
+}
+
+export interface UserListItem {
 	id: number;
 	name: string;
 	email: string;
 	role: UserRole;
 	status: Status;
 	lockVersion: number;
-	groups: UserGroup[];
+	groups: UserListUserGroup[];
 	displayId: string;
 	canUpdate: boolean;
 	canDelete: boolean;
-}
-
-export interface UserListFilter {
-	keyword: string | null;
-	role: string | null;
-	status: string | null;
 }
 
 export interface UserListPagination {
@@ -36,21 +37,16 @@ export interface UserListPermissions {
 	canCreate: boolean;
 }
 
-export interface SelectOption {
-	value: string;
-	label: string;
-}
-
 export interface UserListOptions {
 	roles: SelectOption[];
 	statuses: SelectOption[];
 }
 
-export interface UserListDomainData {
-	users: User[];
-	filter: UserListFilter;
+export interface UserListResponse {
+	filters: UserListFilters;
+	users: UserListItem[];
 	pagination: UserListPagination;
 	permissions: UserListPermissions;
-	message: string | null;
 	options: UserListOptions;
+	message: string | null;
 }

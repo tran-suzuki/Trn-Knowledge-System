@@ -70,6 +70,7 @@ class GroupMemberController extends Controller {
 					],
 				];
 			}, $resultDto->items);
+
 			return response()->json([
 				'data'    => [
 					'members' => $items,

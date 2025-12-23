@@ -20,7 +20,6 @@ class AppServiceProvider extends ServiceProvider {
 			\App\Domain\Company\CompanyRepositoryInterface::class,
 			\App\Infrastructure\Company\CompanyRepository::class
 		);
-
 		$this->app->bind(
 			\App\Domain\Group\GroupRepositoryInterface::class,
 			\App\Infrastructure\Group\GroupRepository::class
@@ -33,6 +32,19 @@ class AppServiceProvider extends ServiceProvider {
 	}
 
 	public function boot(): void {
+		Gate::define('user.can-edit-and-delete', function (MtUser $mtUser, int $targetUserId, string $targetUserRole): bool {
+
+			if ($mtUser->role === 'admin') {
+				return true;
+			}
+
+			if ($mtUser->role === 'manager') {
+				return $targetUserRole === 'user' || $mtUser->id === $targetUserId;
+			}
+
+			return $mtUser->id === $targetUserId;
+		});
+
 		Gate::define('group.add-member', function (MtUser $user, MtGroup $group): bool {
 			$systemRole = UserRole::fromNullable($user->role);
 

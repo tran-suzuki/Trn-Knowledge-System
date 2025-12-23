@@ -1,24 +1,36 @@
-// resources/js/infrastructure/user/userListMapper.ts
-
-import type { ResponseDto, UserListItemDto } from '@/types/user/userList';
-
+import type { UserListResponseDto, UserListItemDto, UserListQueryDto } from '@/types/user/userList';
+import type { SelectOptionDto } from '@/types/common/selectOption';
 import type {
-	User,
-	UserListFilter,
+	UserListResponse,
+	UserListItem,
+	UserListFilters,
 	UserListPagination,
 	UserListPermissions,
-	UserListDomainData,
-	SelectOption,
 	UserListOptions,
 } from '@/domains/user/userList';
+import type { SelectOption } from '@/domains/common/selectOption';
 
-const mapSelectOptionsDtoToDomain = (options: ResponseDto['roles']): SelectOption[] =>
+export const mapDomainUserListQueryToDto = (
+	filter: UserListFilters,
+	pagination: UserListPagination,
+	override?: Partial<{ page: number; perPage: number }>,
+): UserListQueryDto => {
+	return {
+		keyword: filter.keyword || null,
+		role: filter.role || null,
+		status: filter.status,
+		page: override?.page ?? pagination.currentPage ?? 1,
+		per_page: override?.perPage ?? pagination.perPage ?? 10,
+	};
+};
+
+const mapSelectOptionsDtoToDomain = (options: SelectOptionDto[]): SelectOption[] =>
 	options.map((o) => ({
 		value: o.value,
 		label: o.label,
 	}));
 
-const mapUserItemDtoToDomain = (dto: UserListItemDto): User => {
+const mapUserListItemDtoToDomain = (dto: UserListItemDto): UserListItem => {
 	return {
 		id: dto.id,
 		name: dto.name,
@@ -33,10 +45,10 @@ const mapUserItemDtoToDomain = (dto: UserListItemDto): User => {
 	};
 };
 
-export const mapUserListResponseToDomain = (dto: ResponseDto): UserListDomainData => {
-	const users: User[] = dto.users.map(mapUserItemDtoToDomain);
+export const mapUserListResponseToDomain = (dto: UserListResponseDto): UserListResponse => {
+	const users: UserListItem[] = dto.users.map(mapUserListItemDtoToDomain);
 
-	const filter: UserListFilter = {
+	const filters: UserListFilters = {
 		keyword: dto.filters.keyword ?? '',
 		role: dto.filters.role ?? '',
 		status: dto.filters.status ?? '',
@@ -50,7 +62,7 @@ export const mapUserListResponseToDomain = (dto: ResponseDto): UserListDomainDat
 	};
 
 	const permissions: UserListPermissions = {
-		canCreate: dto.can.create,
+		canCreate: dto.permissions.canCreate,
 	};
 
 	const options: UserListOptions = {
@@ -59,11 +71,11 @@ export const mapUserListResponseToDomain = (dto: ResponseDto): UserListDomainDat
 	};
 
 	return {
+		filters,
 		users,
-		filter,
 		pagination,
 		permissions,
-		message: dto.message,
 		options,
+		message: dto.message,
 	};
 };

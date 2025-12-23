@@ -16,8 +16,7 @@ interface UserFormFeatureProps {
 }
 
 export const UserFormFeature: React.FC<UserFormFeatureProps> = ({ response }) => {
-	const { mode, values, options, errors, setInitialData, resetPasswords, setField, setErrors, clearErrors } =
-		useUserFormStore();
+	const { mode, values, setInitialData, resetPasswords, setErrors, clearErrors } = useUserFormStore();
 
 	const { props } = usePage<{
 		errors: Record<string, string>;
@@ -31,6 +30,7 @@ export const UserFormFeature: React.FC<UserFormFeatureProps> = ({ response }) =>
 		}
 
 		const domain = mapUserFormPageDtoToDomain(response);
+		console.log(domain);
 		setInitialData(domain);
 	}, [response, props.errors, setInitialData]);
 
@@ -156,16 +156,5 @@ export const UserFormFeature: React.FC<UserFormFeatureProps> = ({ response }) =>
 			toast.error('削除に失敗しました。');
 		}
 	};
-	return (
-		<UserForm
-			mode={mode}
-			values={values}
-			options={options}
-			errors={errors}
-			onSubmit={handleSubmit}
-			onCancel={handleCancel}
-			onChangeField={setField}
-			onDelete={handleDelte}
-		/>
-	);
+	return <UserForm onSubmit={handleSubmit} onCancel={handleCancel} onDelete={handleDelte} />;
 };

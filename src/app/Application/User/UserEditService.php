@@ -2,7 +2,7 @@
 
 namespace App\Application\User;
 
-use App\Application\User\Dto\UserFormUserDto;
+use App\Application\User\Dto\In\UserFormUserDto;
 use App\Models\MtUser;
 
 class UserEditService {

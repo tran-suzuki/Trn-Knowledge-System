@@ -1,11 +1,11 @@
 import React from 'react';
-import type { User } from '@/domains/user/userList';
+import type { UserListItem } from '@/domains/user/userList';
 
 interface UserGroupDialogProps {
 	open: boolean;
 	onClose: () => void;
-	name: User['name'];
-	groups: User['groups'];
+	name: UserListItem['name'];
+	groups: UserListItem['groups'];
 }
 
 const UserGroupDialog: React.FC<UserGroupDialogProps> = ({ open, onClose, groups, name }) => {

@@ -1,9 +1,18 @@
 import type { UserRole } from '@/Types/common/role';
 import type { Status } from '@/types/common/status';
+import type { SelectOptionDto } from '@/types/common/selectOption';
 
-export type UserGroupDto = { id: number; name: string };
+export type UserListUserGroupDto = {
+	id: number;
+	name: string;
+};
 
-// resources/js/types/user/userList.ts
+export interface UserListFiltersDto {
+	keyword: string | null;
+	role: string | null;
+	status: string | null;
+}
+
 export interface UserListItemDto {
 	id: number;
 	name: string;
@@ -11,48 +20,37 @@ export interface UserListItemDto {
 	role: UserRole;
 	status: Status;
 	lock_version: number;
-	groups: UserGroupDto[];
+	groups: UserListUserGroupDto[];
 	display_id: string;
 	can_update: boolean;
 	can_delete: boolean;
 }
 
-export interface PaginationDto {
+export interface UserListPaginationDto {
 	current_page: number;
 	per_page: number;
 	total: number;
 	last_page: number;
 }
 
-export interface FiltersDto {
-	keyword: string | null;
-	role: string | null;
-	status: string | null;
+export interface UserListPermissionsDto {
+	canCreate: boolean;
 }
 
-export interface CanDto {
-	create: boolean;
-}
-
-export interface SelectOptionDto {
-	value: string;
-	label: string;
-}
-
-export interface ResponseDto {
+export interface UserListResponseDto {
+	filters: UserListFiltersDto;
 	users: UserListItemDto[];
-	pagination: PaginationDto;
-	filters: FiltersDto;
-	can: CanDto;
-	message: string | null;
+	pagination: UserListPaginationDto;
+	permissions: UserListPermissionsDto;
 	roles: SelectOptionDto[];
 	statuses: SelectOptionDto[];
+	message: string | null;
 }
 
 export interface UserListQueryDto {
 	keyword?: string | null;
 	role?: string | null;
 	status?: string | null;
-	page?: number;
-	per_page?: number;
+	page: number;
+	per_page: number;
 }

@@ -17,7 +17,7 @@ final class GroupMemberListService {
 
 		$actor = auth()->user();
 
-		$items = array_map(function ($domainMember) use ($actor, $mtGroup): GroupMemberListItemDto {
+		$items = array_map(function ($domainMember): GroupMemberListItemDto {
 			$groups = array_map(
 				fn($g) => ['id' => $g->id, 'name' => $g->name],
 				$domainMember->groups

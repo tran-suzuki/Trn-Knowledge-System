@@ -2,16 +2,16 @@
 
 namespace App\Application\User;
 
+use App\Application\User\Dto\In\UserCheckLockVersionInputDto;
 use App\Domain\Common\OptimisticException;
-use App\Models\MtUser;
 
 class UserCheckLockService {
 	/**
 	 * @throws OptimisticException
 	 */
-	public function handle(MtUser $user, int $requestLockVersion, bool $updateMode): void {
-		if ($user->lock_version !== $requestLockVersion) {
-			throw new OptimisticException($updateMode ? __('user.updated_on_other_device') : __('user.updated_by_other_user'));
+	public function handle(UserCheckLockVersionInputDto $dto): void {
+		if ($dto->lockVersion !== $dto->lockVersionRequest) {
+			throw new OptimisticException($dto->updateMode ? __('user.updated_on_other_device') : __('user.updated_by_other_user'));
 		}
 	}
 }

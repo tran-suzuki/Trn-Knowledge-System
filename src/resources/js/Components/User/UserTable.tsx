@@ -1,28 +1,28 @@
 import React, { useState } from 'react';
 import { Edit, Trash, UserSquare } from 'lucide-react';
-import type { User, UserGroup } from '@/domains/user/userList';
-import { userRepository } from '@/infrastructure/user/UserRepository';
-import UserGroupDialog from './UserGroupDialog';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
+import type { UserListItem, UserListUserGroup } from '@/domains/user/userList';
+import { userRepository } from '@/infrastructure/user/userRepository';
+import UserGroupDialog from '@/Components/User/UserGroupDialog';
 import { useUserFormStore } from '@/stores/user/userFormStore';
 
 interface UserTableProps {
-	users: User[];
+	users: UserListItem[];
 }
 
 const UserTable: React.FC<UserTableProps> = ({ users }) => {
 	const [openUserGroupDialog, setOpenUserGroupDialog] = useState<boolean>(false);
-	const [groups, setGroups] = useState<UserGroup[]>([]);
+	const [groups, setGroups] = useState<UserListUserGroup[]>([]);
 	const [name, setName] = useState<string>('');
 	const { clearErrors } = useUserFormStore();
-	const handleEditUser = (user: User) => {
+	const handleEditUser = (user: UserListItem) => {
 		if (!user.canUpdate) return;
 		clearErrors();
 		userRepository.goToEdit(user.displayId);
 	};
 
-	const handleDeleteUser = async (user: User) => {
+	const handleDeleteUser = async (user: UserListItem) => {
 		if (!user.canDelete) return;
 		const checkDeleteLockRes = await userRepository.checkLockVersion(user.displayId, user.lockVersion);
 
@@ -45,12 +45,12 @@ const UserTable: React.FC<UserTableProps> = ({ users }) => {
 		try {
 			await userRepository.deleteUser(user.displayId, user.lockVersion);
 			toast.success('ユーザー情報を削除しました。');
-		} catch (error) {
+		} catch {
 			toast.error('削除に失敗しました。');
 		}
 	};
 
-	const handleShowGroup = (user: User) => {
+	const handleShowGroup = (user: UserListItem) => {
 		setName(user.name);
 		setGroups(user.groups);
 		setOpenUserGroupDialog(true);

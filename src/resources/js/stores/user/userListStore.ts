@@ -1,21 +1,22 @@
 import { create } from 'zustand';
 import type {
-	User,
-	UserListFilter,
+	UserListItem,
+	UserListFilters,
 	UserListPagination,
 	UserListPermissions,
-	UserListDomainData,
+	UserListResponse,
 	UserListOptions,
 } from '@/domains/user/userList';
 
 interface UserListState {
-	users: User[];
-	filter: UserListFilter;
+	users: UserListItem[];
+	filter: UserListFilters;
 	pagination: UserListPagination;
 	permissions: UserListPermissions;
-	message: string | null;
 	options: UserListOptions;
-	setInitialData: (data: UserListDomainData) => void;
+	message: string | null;
+
+	setInitialData: (data: UserListResponse) => void;
 	setKeyword: (keyword: string) => void;
 	setRole: (role: string) => void;
 	setStatus: (status: string) => void;
@@ -27,12 +28,12 @@ const emptyOptions: UserListOptions = {
 };
 
 export const useUserListStore = create<UserListState>((set) => ({
-	users: [],
-	filter: {
+	filters: {
 		keyword: '',
 		role: '',
 		status: '',
 	},
+	users: [],
 	pagination: {
 		currentPage: 1,
 		perPage: 10,
@@ -42,30 +43,30 @@ export const useUserListStore = create<UserListState>((set) => ({
 	permissions: {
 		canCreate: false,
 	},
-	message: null,
 	options: emptyOptions,
+	message: null,
 
 	setInitialData: (data) =>
 		set({
+			filters: data.filters,
 			users: data.users,
-			filter: data.filter,
 			pagination: data.pagination,
 			permissions: data.permissions,
-			message: data.message,
 			options: data.options,
+			message: data.message,
 		}),
 
 	setKeyword: (keyword) =>
 		set((state) => ({
-			filter: { ...state.filter, keyword },
+			filters: { ...state.filters, keyword },
 		})),
 
 	setRole: (role) =>
 		set((state) => ({
-			filter: { ...state.filter, role },
+			filters: { ...state.filters, role },
 		})),
 	setStatus: (status) =>
 		set((state) => ({
-			filter: { ...state.filter, status },
+			filters: { ...state.filters, status },
 		})),
 }));

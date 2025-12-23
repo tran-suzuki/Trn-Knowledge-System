@@ -9,7 +9,7 @@ interface UserFilterProps {
 }
 
 const UserFilter: React.FC<UserFilterProps> = ({ onSearchClick }) => {
-	const { filter, options, setKeyword, setRole, setStatus } = useUserListStore();
+	const { options, filters, setKeyword, setRole, setStatus } = useUserListStore();
 	return (
 		<div className="flex flex-col sm:flex-row items-center justify-between mb-6 space-y-4 sm:space-y-0 sm:space-x-4">
 			<div className="flex items-center w-full sm:w-auto">
@@ -17,7 +17,7 @@ const UserFilter: React.FC<UserFilterProps> = ({ onSearchClick }) => {
 					type="text"
 					placeholder="名前/メールで検索..."
 					className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-					value={filter.keyword}
+					value={filters.keyword}
 					onChange={(e) => setKeyword(e.target.value)}
 				/>
 				<button
@@ -31,7 +31,7 @@ const UserFilter: React.FC<UserFilterProps> = ({ onSearchClick }) => {
 			<div className="flex space-x-4">
 				<select
 					className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-					value={filter.role}
+					value={filters.role}
 					onChange={(e) => setRole(e.target.value as UserFilterRole)}
 				>
 					<option value="">全てのロール</option>
@@ -44,7 +44,7 @@ const UserFilter: React.FC<UserFilterProps> = ({ onSearchClick }) => {
 
 				<select
 					className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-					value={filter.status}
+					value={filters.status}
 					onChange={(e) => setStatus(e.target.value)}
 				>
 					<option value="">全てのステータス</option>

@@ -1,41 +1,25 @@
-// resources/js/infrastructure/user/userRepository.ts
-
+import axios from 'axios';
 import { router } from '@inertiajs/react';
-import type { UserListFilter, UserListPagination } from '@/domains/user/userList';
-import type { UserListQueryDto } from '@/types/user/userList';
+import type { VisitOptions } from '@inertiajs/core';
+import type { UserListFilters, UserListPagination } from '@/domains/user/userList';
 import type { UserFormValues } from '@/domains/user/userForm';
 import { mapUserFormValuesToSubmitDto } from '@/infrastructure/user/userFormMapper';
-import type { VisitOptions } from '@inertiajs/core';
-import axios from 'axios';
-
-const mapDomainToQuery = (
-	filter: UserListFilter,
-	pagination: UserListPagination,
-	override?: Partial<{ page: number; perPage: number }>,
-): UserListQueryDto => {
-	return {
-		keyword: filter.keyword || null,
-		role: filter.role || null,
-		status: filter.status,
-		page: override?.page ?? pagination.currentPage ?? 1,
-		per_page: override?.perPage ?? pagination.perPage ?? 10,
-	};
-};
+import { mapDomainUserListQueryToDto } from '@/infrastructure/user/userListMapper';
 
 export const userRepository = {
-	searchList(filter: UserListFilter, pagination: UserListPagination) {
-		const query = mapDomainToQuery(filter, pagination, { page: 1 });
-		router.get(route('user.index'), query, {
+	searchList(filter: UserListFilters, pagination: UserListPagination) {
+		const payload = mapDomainUserListQueryToDto(filter, pagination, { page: 1 });
+		router.get(route('users.index'), payload, {
 			preserveState: true,
 			preserveScroll: true,
 			replace: true,
 		});
 	},
 
-	changePage(page: number, filter: UserListFilter, pagination: UserListPagination) {
-		const query = mapDomainToQuery(filter, pagination, { page });
+	changePage(page: number, filter: UserListFilters, pagination: UserListPagination) {
+		const payload = mapDomainUserListQueryToDto(filter, pagination, { page });
 
-		router.get(route('user.index'), query, {
+		router.get(route('users.index'), payload, {
 			preserveState: true,
 			preserveScroll: true,
 			replace: true,
@@ -43,34 +27,34 @@ export const userRepository = {
 	},
 
 	goToCreate() {
-		router.get(route('user.create'));
+		router.get(route('users.create'));
 	},
 
 	goToList() {
-		router.get(route('user.index'));
+		router.get(route('users.index'));
 	},
 
 	goToEdit(displayId: string) {
-		router.get(route('user.edit', displayId));
+		router.get(route('users.edit', displayId));
 	},
 
 	async checkLockVersion(displayId: string, lockVersion: number, updateMode: boolean = false) {
-		const res = await axios.post(route('user.checkLock', displayId), {
+		const res = await axios.post(route('users.checkLock', displayId), {
 			lock_version: lockVersion,
-			updateMode: updateMode,
+			update_mode: updateMode,
 		});
 		return res.data as { status: 'true' | 'false'; message?: string };
 	},
 
 	async checkPassword(displayId: string, password: string) {
-		const res = await axios.post(route('user.checkPassword', displayId), {
+		const res = await axios.post(route('users.checkPassword', displayId), {
 			password: password.trim(),
 		});
 		return res.data as { status: 'true' | 'false'; message?: string; matched: boolean };
 	},
 
 	deleteUser(displayId: string, lockVersion: number) {
-		router.delete(route('user.destroy', displayId), {
+		router.delete(route('users.destroy', displayId), {
 			data: { lock_version: lockVersion },
 			preserveScroll: true,
 		});
@@ -79,7 +63,7 @@ export const userRepository = {
 	createUser(values: UserFormValues, options?: VisitOptions) {
 		const payload = mapUserFormValuesToSubmitDto(values);
 
-		router.post(route('user.store'), payload, {
+		router.post(route('users.store'), payload, {
 			preserveScroll: true,
 			...options,
 		});
@@ -88,7 +72,7 @@ export const userRepository = {
 	updateUser(id: number | string, values: UserFormValues, options?: VisitOptions) {
 		const payload = mapUserFormValuesToSubmitDto(values);
 
-		router.put(route('user.update', id), payload, {
+		router.put(route('users.update', id), payload, {
 			preserveScroll: true,
 			...options,
 		});

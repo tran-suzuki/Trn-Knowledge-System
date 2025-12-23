@@ -1,11 +1,10 @@
 <?php
 
 use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Chat\ChatController;
+use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\GroupMember\GroupMemberController;
 use App\Http\Controllers\Group\GroupController;
-
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,7 +24,7 @@ Route::middleware(['auth', 'checkUserAccountIsValid'])
 		Route::get('/dashboard', DashboardController::class)->name('dashboard');
 	});
 
-Route::middleware(['auth'])->prefix('users')->name('user.')->group(function () {
+Route::middleware(['auth'])->prefix('users')->name('users.')->group(function () {
 	Route::get('/', [UserController::class, 'index'])->name('index');
 	Route::get('/create', [UserController::class, 'create'])->name('create');
 	Route::post('/', [UserController::class, 'store'])->name('store');

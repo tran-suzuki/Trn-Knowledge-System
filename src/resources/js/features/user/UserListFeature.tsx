@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import type { ResponseDto } from '@/types/user/userList';
+import type { UserListResponseDto } from '@/types/user/userList';
 import { mapUserListResponseToDomain } from '@/infrastructure/user/userListMapper';
 import { userRepository } from '@/infrastructure/user/userRepository';
 import { useUserListStore } from '@/stores/user/userListStore';
@@ -9,23 +9,23 @@ import UserTable from '@/Components/User/UserTable';
 import Pagination from '@/Components/Common/Pagination';
 
 interface UserListFeatureProps {
-	response: ResponseDto;
+	response: UserListResponseDto;
 }
 
 export const UserListFeature: React.FC<UserListFeatureProps> = ({ response }) => {
-	const { users, filter, pagination, setInitialData } = useUserListStore();
+	const { users, filters, pagination, setInitialData } = useUserListStore();
 
 	useEffect(() => {
 		const domainData = mapUserListResponseToDomain(response);
 		setInitialData(domainData);
-	}, [response]);
+	}, [response, setInitialData]);
 
 	const handleSearch = () => {
-		userRepository.searchList(filter, pagination);
+		userRepository.searchList(filters, pagination);
 	};
 
 	const handlePageChange = (page: number) => {
-		userRepository.changePage(page, filter, pagination);
+		userRepository.changePage(page, filters, pagination);
 	};
 
 	return (

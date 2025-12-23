@@ -2,16 +2,13 @@
 
 namespace App\Application\User;
 
-use App\Application\User\Dto\UserStoreInputDto;
+use App\Application\User\Dto\In\UserStoreInputDto;
 use App\Domain\Common\Status;
-use App\Domain\User\User;
 use App\Domain\User\UserRepositoryInterface;
-use App\Domain\User\UserRole;
-use App\Models\MtUser;
-use App\Notifications\UserRegisteredNotification;
+use App\Domain\User\View\User;
+use App\Domain\User\View\UserRole;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticationProvider;
 
@@ -23,7 +20,9 @@ class UserRegisterService {
 	}
 
 	public function handle(UserStoreInputDto $input): void {
-		DB::transaction(function () use ($input) {
+		$newId = 0;
+
+		DB::transaction(function () use ($input, &$newId) {
 
 			$newId = $this->users->nextId();
 
@@ -55,17 +54,15 @@ class UserRegisterService {
 			);
 
 			$this->users->create($user);
-
-			$mtUser = MtUser::findOrFail($newId);
-
-			try {
-				$mtUser->notify(new UserRegisteredNotification());
-			} catch (\Throwable $e) {
-				\Log::error('User registered but mail send failed', [
-					'id'    => $mtUser->id,
-					'error' => $e->getMessage(),
-				]);
-			}
 		});
+
+		try {
+			$this->users->notifyRegistered($newId);
+		} catch (\Throwable $e) {
+			\Log::error('[UserRegisterService][notifyRegistered]', [
+				'user_id' => $newId,
+				'error'   => $e->getMessage(),
+			]);
+		}
 	}
 }

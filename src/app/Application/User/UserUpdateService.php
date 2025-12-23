@@ -2,11 +2,11 @@
 
 namespace App\Application\User;
 
-use App\Application\User\Dto\UserUpdateInputDto;
+use App\Application\User\Dto\In\UserUpdateInputDto;
 use App\Application\User\UserRequestEmailChangeService;
 use App\Domain\Common\OptimisticException;
 use App\Domain\User\UserRepositoryInterface;
-use App\Domain\User\UserRole;
+use App\Domain\User\View\UserRole;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 

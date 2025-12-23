@@ -2,20 +2,19 @@
 
 namespace App\Application\User;
 
-use App\Application\User\Dto\UserListInputDto;
-use App\Application\User\Dto\UserListItemDto;
-use App\Application\User\Dto\UserListResultDto;
-use App\Domain\User\UserListFilter;
+use App\Application\User\Dto\In\UserListInputDto;
+use App\Application\User\Dto\Out\UserListResultDto;
+use App\Application\User\Dto\View\UserListItemDto;
+use App\Domain\User\In\UserListFilter;
 use App\Domain\User\UserRepositoryInterface;
-use App\Domain\User\UserRole;
-use App\Models\MtUser;
+use App\Domain\User\View\UserRole;
 
 class UserListService {
 	public function __construct(
 		private UserRepositoryInterface $userRepository
 	) {}
 
-	public function handle(UserListInputDto $input, MtUser $authUser): UserListResultDto {
+	public function handle(UserListInputDto $input): UserListResultDto {
 
 		$filter = new UserListFilter(
 			keyword: $input->keyword,
@@ -27,11 +26,11 @@ class UserListService {
 
 		$domainResult = $this->userRepository->search($filter);
 
-		$ids    = array_map(fn($u) => $u->id, $domainResult->items);
-		$models = MtUser::whereIn('id', $ids)->get()->keyBy('id');
-
-		$items = array_map(function ($domainUser) use ($authUser, $models) {
-			$model = $models[$domainUser->id];
+		$items = array_map(function ($domainUser) {
+			$groups = array_map(
+				fn($g) => ['id' => $g->id, 'name' => $g->name],
+				$domainUser->groups
+			);
 
 			return new UserListItemDto(
 				id: $domainUser->id,
@@ -41,9 +40,7 @@ class UserListService {
 				role: $domainUser->role->value(),
 				status: $domainUser->status,
 				lockVersion: $domainUser->lockVersion,
-				groups: $domainUser->groups,
-				canUpdate: $authUser->can('update', $model),
-				canDelete: $authUser->can('delete', $model),
+				groups: $groups,
 			);
 		}, $domainResult->items);
 

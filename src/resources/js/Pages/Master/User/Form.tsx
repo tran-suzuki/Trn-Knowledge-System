@@ -3,9 +3,7 @@ import AppLayout from '@/Layouts/AppLayout';
 import { UserFormFeature } from '@/features/user/UserFormFeature';
 import type { UserFormPageDto } from '@/types/user/userForm';
 
-interface PageProps extends UserFormPageDto {}
-
-const FormPage: React.FC<PageProps> = (props) => {
+const FormPage: React.FC<UserFormPageDto> = (props) => {
 	const title = props.user ? 'ユーザー編集' : 'ユーザー登録';
 	return (
 		<AppLayout title={title}>

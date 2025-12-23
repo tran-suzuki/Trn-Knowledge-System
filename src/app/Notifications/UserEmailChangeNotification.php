@@ -20,7 +20,7 @@ class UserEmailChangeNotification extends Notification {
 	}
 
 	public function toMail($notifiable): MailMessage {
-		$url = route('user.email-verify-change', ['token' => $this->token]);
+		$url = route('users.email-verify-change', ['token' => $this->token]);
 
 		return (new MailMessage)
 			->subject('【AIナレッジシステム】新しいメールアドレス変更のお知らせ')
