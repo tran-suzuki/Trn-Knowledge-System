@@ -7,8 +7,10 @@ use App\Domain\GroupMember\GroupMemberRepositoryInterface;
 use App\Domain\GroupMember\In\GroupMemberChangeRolesInput;
 use App\Domain\GroupMember\In\GroupMemberDeleteByGroupIdInput;
 use App\Domain\GroupMember\In\GroupMemberDeleteInput;
+use App\Domain\GroupMember\In\GroupMemberSearchInput;
 use App\Domain\GroupMember\In\GroupMembersFindItemInput;
 use App\Domain\GroupMember\In\GroupMembersStoreInput;
+use App\Domain\GroupMember\Out\GroupMemberList;
 use App\Domain\GroupMember\Out\GroupMemberListResult;
 use App\Domain\GroupMember\View\GroupMember;
 use App\Domain\Group\View\GroupRole;
@@ -17,6 +19,27 @@ use App\Domain\User\View\UserRole;
 use App\Models\DtGroupUser;
 
 final class GroupMemberRepository implements GroupMemberRepositoryInterface {
+	public function search(GroupMemberSearchInput $input): GroupMemberList {
+
+		$query = DtGroupUser::query()
+			->whereNull('dt_group_user.deleted_at')
+			->whereHas('group', function ($q) {
+				$q->whereNull('mt_groups.deleted_at');
+			})
+			->whereHas('user', function ($q) {
+				$q->whereNull('mt_users.deleted_at');
+			});
+
+		if ($input->groupIds !== []) {
+			$query->whereIn('dt_group_user.fk_group_id', $input->groupIds);
+		}
+		$rows     = $query->get(['fk_group_id', 'fk_user_id']);
+		$groupIds = $rows->pluck('fk_group_id')->unique()->values()->all();
+		$userIds  = $rows->pluck('fk_user_id')->unique()->values()->all();
+
+		return new GroupMemberList($groupIds, $userIds);
+	}
+
 	public function listByGroupDisplayId(string $groupDisplayId): GroupMemberListResult {
 
 		$groupUsers = DtGroupUser::query()

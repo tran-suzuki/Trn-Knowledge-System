@@ -3,6 +3,7 @@
 namespace App\Infrastructure\Group;
 
 use App\Domain\Common\OptimisticException;
+use App\Domain\Dashboard\In\DashboardGroupListInput;
 use App\Domain\Group\GroupRepositoryInterface;
 use App\Domain\Group\In\GroupDeleteInput;
 use App\Domain\Group\In\GroupListInput;
@@ -137,4 +138,43 @@ class GroupRepository implements GroupRepositoryInterface {
 
 		return (int) $model->id;
 	}
+
+	public function listGroupsForDashboard(DashboardGroupListInput $input): GroupListResult {
+		$query = MtGroup::query()
+			->select([
+				'mt_groups.id',
+				'mt_groups.display_id',
+				'mt_groups.name',
+			])
+			->withCount([
+				'members as user_count',
+				'documents as document_count',
+			])
+			->whereNull('mt_groups.deleted_at')
+			->orderByDesc('mt_groups.created_at')
+			->orderByDesc('mt_groups.id');
+
+		if (!$input->actorSystemRole->isAdmin()) {
+			$query->whereHas('groupUsers', function ($q) use ($input): void {
+				$q->where('dt_group_user.fk_user_id', $input->actorId);
+			});
+		}
+
+		$items = $query->get()->map(function (MtGroup $model) {
+			return Group::dashboardGroupItem(
+				displayId: $model->display_id,
+				name: $model->name,
+				userCount: (int) $model->user_count,
+				id: (int) $model->id,
+				description: null,
+				lockVersion: null,
+				documentCount: (int) $model->document_count
+			);
+		})->all();
+
+		return new GroupListResult(
+			items: $items
+		);
+	}
+
 }

@@ -29,6 +29,11 @@ class AppServiceProvider extends ServiceProvider {
 			\App\Domain\GroupMember\GroupMemberRepositoryInterface::class,
 			\App\Infrastructure\GroupMember\GroupMemberRepository::class
 		);
+
+		$this->app->bind(
+			\App\Domain\ChatSession\ChatSessionRepositoryInterface::class,
+			\App\Infrastructure\ChatSession\ChatSessionRepository::class
+		);
 	}
 
 	public function boot(): void {

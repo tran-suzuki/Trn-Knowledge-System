@@ -2,6 +2,7 @@
 
 namespace App\Domain\Group;
 
+use App\Domain\Dashboard\In\DashboardGroupListInput;
 use App\Domain\Group\In\GroupDeleteInput;
 use App\Domain\Group\In\GroupListInput;
 use App\Domain\Group\In\GroupStoreInput;
@@ -20,4 +21,7 @@ interface GroupRepositoryInterface {
 	public function existsByDisplayId(string $displayId): bool;
 
 	public function create(GroupStoreInput $groupStore): int;
+
+	public function listGroupsForDashboard(DashboardGroupListInput $input): GroupListResult;
+
 }

@@ -79,9 +79,7 @@ export const ChatFeature: React.FC = () => {
 					<li className="px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 cursor-pointer">営業戦略の質問</li>
 				</ul>
 				<button
-					onClick={() => {
-						router.get(route('groups.index'));
-					}} // 前の画面に戻る
+					onClick={() => window.history.back()} // 前の画面に戻る
 					className="mt-6 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors"
 				>
 					<ArrowLeft className="w-5 h-5 inline-block mr-2" />

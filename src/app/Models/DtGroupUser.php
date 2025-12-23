@@ -28,4 +28,7 @@ class DtGroupUser extends Model {
 		return $this->belongsTo(MtUser::class, 'fk_created_by');
 	}
 
+	public function scopeActive($q) {
+		return $q->whereNull('dt_group_user.deleted_at');
+	}
 }

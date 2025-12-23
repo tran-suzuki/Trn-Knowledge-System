@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder {
 			MtGroupsSeeder::class,
 			DtGroupUserSeeder::class,
 			DtDocumentsSeeder::class,
+			DtChatSessionsSeeder::class,
+			DtChatMessagesSeeder::class,
 		]);
 	}
 }

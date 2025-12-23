@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Chat\ChatController;
+use App\Http\Controllers\Chat\ChatSessionController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\GroupMember\GroupMemberController;
 use App\Http\Controllers\Group\GroupController;
@@ -19,10 +20,9 @@ Route::get('/', function () {
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
 	->name('password.email');
 
-Route::middleware(['auth', 'checkUserAccountIsValid'])
-	->group(function () {
-		Route::get('/dashboard', DashboardController::class)->name('dashboard');
-	});
+Route::middleware(['auth', 'checkUserAccountIsValid'])->group(function () {
+	Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
 
 Route::middleware(['auth'])->prefix('users')->name('users.')->group(function () {
 	Route::get('/', [UserController::class, 'index'])->name('index');
@@ -57,6 +57,7 @@ Route::middleware(['auth'])->prefix('groups')->name('groups.')->group(function (
 
 Route::middleware(['auth'])->prefix('chats')->name('chats.')->group(function () {
 	Route::get('/group/{mtGroup:display_id}', [ChatController::class, 'index'])->name('index');
+	Route::get('/session/{DtChatSession:display_id}', [ChatSessionController::class, 'index'])->name('session.index');
 });
 
 //todo

@@ -13,9 +13,7 @@ final class GroupMemberListService {
 	) {}
 
 	public function handle(MtGroup $mtGroup): GroupMemberListResultDto {
-		$domainResult = $this->groupMemberRepository->listByGroupDisplayId(groupDisplayId: $mtGroup->display_id);
-
-		$actor = auth()->user();
+		$domainResult = $this->groupMemberRepository->listByGroupDisplayId([$mtGroup->display_id]);
 
 		$items = array_map(function ($domainMember): GroupMemberListItemDto {
 			$groups = array_map(
