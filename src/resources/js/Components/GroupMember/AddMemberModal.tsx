@@ -13,7 +13,7 @@ interface AddMemberModalProps {
 
 const AddMemberModal: React.FC<AddMemberModalProps> = ({ open, onClose }) => {
 	const { members } = useGroupMemberListStore();
-	const { selectedGroupDisplayId, keyword } = useGroupListStore();
+	const { selectedGroupDisplayId, filters, pagination } = useGroupListStore();
 
 	const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
 	const [searchTerm, setSearchTerm] = useState<string>('');
@@ -68,7 +68,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ open, onClose }) => {
 	const handleConfirm = async () => {
 		const addMemberRes = await groupMemberRepository.addMember(selectedGroupDisplayId, selectedMemberIds);
 		if (addMemberRes.status) {
-			groupRepository.searchList(keyword);
+			groupRepository.searchList(filters, pagination);
 			toast.success(addMemberRes.message || msg.groupMember.created);
 		} else {
 			toast.error(addMemberRes.message || msg.groupMember.createFailed);

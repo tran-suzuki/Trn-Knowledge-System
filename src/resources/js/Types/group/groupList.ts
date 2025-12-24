@@ -6,14 +6,31 @@ export interface GroupListItemDto {
 	user_count: number;
 }
 
+export interface GroupListFiltersDto {
+	keyword: string | null;
+	group_scope: boolean;
+}
+
+export interface GroupListPaginationDto {
+	current_page: number;
+	per_page: number;
+	total: number;
+	last_page: number;
+}
+
 export interface GroupListResponseDto {
 	groups: GroupListItemDto[];
-	keyword: string | null;
+	pagination: GroupListPaginationDto;
+	filters: GroupListFiltersDto;
+	group_scope_display: boolean;
 	message: string | null;
 }
 
 export interface GroupListQueryDto {
-	keyword?: string | null;
+	keyword: string | null;
+	group_scope: GroupScope;
+	page: number;
+	per_page: number;
 }
 
 // ------ Detail -----------

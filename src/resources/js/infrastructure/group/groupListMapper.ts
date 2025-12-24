@@ -15,6 +15,8 @@ import type {
 	Permissions,
 	GroupDetailResponse,
 	CheckLockVersionRequest,
+	GroupListPagination,
+	GroupListFilters,
 } from '@/domains/group/groupList';
 
 // --------------- List -------------------
@@ -29,16 +31,39 @@ const mapGroupListItemDtoToDomain = (dto: GroupListItemDto): GroupListItem => {
 export const mapGroupListResponseDtoToDomain = (dto: GroupListResponseDto): GroupListResponse => {
 	const groups: GroupListItem[] = dto.groups.map(mapGroupListItemDtoToDomain);
 
+	const pagination: GroupListPagination = {
+		currentPage: dto.pagination.current_page,
+		perPage: dto.pagination.per_page,
+		total: dto.pagination.total,
+		lastPage: dto.pagination.last_page,
+	};
+
+	const filters: GroupListFilters = {
+		keyword: dto.filters.keyword,
+		groupScope: dto.filters.group_scope,
+	};
+
+	const groupScopeDisplay = dto.group_scope_display;
+
 	return {
 		groups,
-		keyword: dto.keyword,
+		pagination,
+		filters,
+		groupScopeDisplay,
 		message: dto.message,
 	};
 };
 
-export const mapGroupListQueryToDto = (keyword: string): GroupListQueryDto => {
+export const mapGroupListQueryToDto = (
+	filters: GroupListFilters,
+	pagination: GroupListPagination,
+	override?: Partial<{ page: number; perPage: number }>,
+): GroupListQueryDto => {
 	return {
-		keyword: keyword || null,
+		keyword: filters.keyword || null,
+		group_scope: filters.groupScope,
+		page: override?.page ?? pagination.currentPage ?? 1,
+		per_page: override?.perPage ?? pagination.perPage ?? 10,
 	};
 };
 

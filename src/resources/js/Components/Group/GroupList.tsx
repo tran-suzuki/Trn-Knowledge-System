@@ -3,12 +3,17 @@ import { Plus } from 'lucide-react';
 import GroupFilter from './GroupFilter';
 import { useGroupListStore } from '@/stores/group/groupListStore';
 import { groupRepository } from '@/infrastructure/group/groupRepository';
+import Pagination from '../Common/Pagination';
 
 const GroupList: React.FC = () => {
-	const { groups, selectedGroupDisplayId, setSelectedGroupDisplayId } = useGroupListStore();
+	const { groups, pagination, filters, selectedGroupDisplayId, setSelectedGroupDisplayId } = useGroupListStore();
 
 	const onAddGroup = () => {
 		groupRepository.goToCreate();
+	};
+
+	const handlePageChange = (page: number) => {
+		groupRepository.changePage(page, filters, pagination);
 	};
 
 	return (
@@ -43,6 +48,7 @@ const GroupList: React.FC = () => {
 						</tbody>
 					</table>
 				</div>
+				{pagination?.lastPage > 1 && <Pagination pagination={pagination} onPageChange={handlePageChange} />}
 				<button
 					onClick={onAddGroup}
 					className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
