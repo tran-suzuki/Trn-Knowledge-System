@@ -14,6 +14,7 @@ use App\Application\Group\GroupListService;
 use App\Application\Group\GroupRegisterService;
 use App\Domain\Common\OptimisticException;
 use App\Domain\Common\Status;
+use App\Domain\User\View\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Group\GroupStoreRequest;
 use App\Models\MtGroup;
@@ -34,23 +35,50 @@ class GroupController extends Controller {
 	) {}
 
 	public function index(Request $request): Response {
+
 		$this->authorize('viewAny', MtGroup::class);
 
-		$actor = $request->user();
+		$actor   = $request->user();
+		$isAdmin = UserRole::fromNullable($actor->role)->isAdmin();
+
+		$groupScope = filter_var(
+			$request->query('group_scope'),
+			FILTER_VALIDATE_BOOLEAN,
+			FILTER_NULL_ON_FAILURE
+		);
+
+		if (!$isAdmin) {
+			$groupScope = true;
+		} else {
+			$groupScope = $groupScope ?? false;
+		}
 
 		$inputDto = new GroupListInputDto(
-			keyword: $request->input('keyword'),
+			keyword: $request->input('keyword') ?? "",
+			groupScope: $groupScope,
 			actorId: (int) $actor->id,
 			actorSystemRole: $actor->role,
+			page: (int) $request->input('page', 1),
+			perPage: (int) $request->input('per_page', 10),
 		);
 
 		$resultDto = $this->groupListService->handle($inputDto);
 		$hasData   = count($resultDto->items) > 0;
 
 		return Inertia::render('Master/Group/Index', [
-			'groups'  => $hasData ? $resultDto->toArray()['items'] : [],
-			'keyword' => $inputDto->keyword,
-			'message' => $hasData ? null : __('group.no_data'),
+			'groups'              => $hasData ? $resultDto->toArray()['items'] : [],
+			'filters'             => [
+				'keyword'     => $inputDto->keyword,
+				'group_scope' => $inputDto->groupScope,
+			],
+			'pagination'          => [
+				'current_page' => $hasData ? $resultDto->currentPage : 1,
+				'per_page'     => $hasData ? $resultDto->perPage : $inputDto->perPage,
+				'total'        => $hasData ? $resultDto->total : 0,
+				'last_page'    => $hasData ? $resultDto->lastPage : 1,
+			],
+			'group_scope_display' => $isAdmin,
+			'message'             => $hasData ? null : __('group.no_data'),
 		]);
 	}
 

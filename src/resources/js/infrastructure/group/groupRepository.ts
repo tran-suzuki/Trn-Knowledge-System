@@ -4,10 +4,20 @@ import type { VisitOptions } from '@inertiajs/core';
 import axios from 'axios';
 import { GroupFormSubmit } from '@/domains/group/groupForm';
 import { mapGroupFormSubmitToSubmitDto } from './groupFormMapper';
+import { GroupListFilters, GroupListPagination } from '@/domains/group/groupList';
 
 export const groupRepository = {
-	searchList(keyword: string | null) {
-		const payload = mapGroupListQueryToDto(keyword ?? '');
+	searchList(filters: GroupListFilters, pagination: GroupListPagination) {
+		const payload = mapGroupListQueryToDto(filters, pagination, { page: 1 });
+		router.get(route('groups.index'), payload, {
+			preserveState: true,
+			preserveScroll: true,
+			replace: true,
+		});
+	},
+
+	changePage(page: number, filters: GroupListFilters, pagination: GroupListPagination) {
+		const payload = mapGroupListQueryToDto(filters, pagination, { page });
 		router.get(route('groups.index'), payload, {
 			preserveState: true,
 			preserveScroll: true,

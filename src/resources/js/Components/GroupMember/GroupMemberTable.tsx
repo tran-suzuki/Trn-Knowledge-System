@@ -14,7 +14,7 @@ interface GroupMemberTableProps {
 }
 
 const GroupMemberTable: React.FC<GroupMemberTableProps> = ({ onSuccess }) => {
-	const { selectedGroupDisplayId, keyword } = useGroupListStore();
+	const { selectedGroupDisplayId, filters, pagination } = useGroupListStore();
 	const { groupMembers } = useGroupMemberListStore();
 
 	const [openChangeSingleMemberRole, setOpenChangeSingleMemberRole] = useState<boolean>(false);
@@ -63,7 +63,7 @@ const GroupMemberTable: React.FC<GroupMemberTableProps> = ({ onSuccess }) => {
 				return;
 			}
 
-			groupRepository.searchList(keyword);
+			groupRepository.searchList(filters, pagination);
 			toast.success(msg.groupMember.deleted);
 		} catch {
 			toast.error(msg.groupMember.deleteFailed);
@@ -89,7 +89,7 @@ const GroupMemberTable: React.FC<GroupMemberTableProps> = ({ onSuccess }) => {
 						</tr>
 					</thead>
 					<tbody className="bg-white divide-y divide-gray-200">
-						{groupMembers &&
+						{groupMembers.length > 0 &&
 							groupMembers?.map((member) => (
 								<tr key={member.displayId}>
 									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>

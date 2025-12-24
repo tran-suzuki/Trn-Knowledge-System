@@ -6,9 +6,23 @@ export interface GroupListItem {
 	userCount: number;
 }
 
+export interface GroupListFilters {
+	keyword: string | null;
+	groupScope: boolean;
+}
+
+export interface GroupListPagination {
+	currentPage: number;
+	perPage: number;
+	total: number;
+	lastPage: number;
+}
+
 export interface GroupListResponse {
 	groups: GroupListItem[];
-	keyword: string | null;
+	pagination: GroupListPagination;
+	filters: GroupListFilters;
+	groupScopeDisplay: boolean;
 	message: string | null;
 }
 

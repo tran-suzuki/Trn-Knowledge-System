@@ -34,7 +34,7 @@ class GroupRepository implements GroupRepositoryInterface {
 			->where('mt_groups.status', GroupStatus::ACTIVE)
 			->orderByDesc('mt_groups.created_at');
 
-		if (!$input->actorSystemRole->isAdmin()) {
+		if ($input->groupScope) {
 			$query->whereHas('groupUsers', function ($q) use ($input): void {
 				$q->whereNull('dt_group_user.deleted_at')
 					->where('dt_group_user.fk_user_id', $input->actorId);
@@ -48,8 +48,12 @@ class GroupRepository implements GroupRepositoryInterface {
 			});
 		}
 
-		$models = $query->get();
-		$items  = $models->map(function (MtGroup $model) {
+		$paginator = $query->paginate(
+			perPage: $input->perPage,
+			page: $input->page,
+		);
+
+		$items = $paginator->getCollection()->map(function (MtGroup $model) {
 			return Group::list(
 				displayId: $model->display_id,
 				name: $model->name,
@@ -57,7 +61,11 @@ class GroupRepository implements GroupRepositoryInterface {
 			);
 		})->all();
 		return new GroupListResult(
-			items: $items
+			items: $items,
+			currentPage: $paginator->currentPage(),
+			perPage: $paginator->perPage(),
+			total: $paginator->total(),
+			lastPage: $paginator->lastPage(),
 		);
 	}
 

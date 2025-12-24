@@ -18,8 +18,11 @@ class GroupListService {
 
 		$filter = new GroupListInput(
 			keyword: $input->keyword,
+			groupScope: $input->groupScope,
 			actorId: $input->actorId,
-			actorSystemRole: UserRole::fromNullable($input->actorSystemRole)
+			actorSystemRole: UserRole::fromNullable($input->actorSystemRole),
+			page: $input->page,
+			perPage: $input->perPage,
 		);
 
 		$domainResult = $this->groupRepository->search($filter);
@@ -33,7 +36,11 @@ class GroupListService {
 		}, $domainResult->items);
 
 		return new GroupListResultDto(
-			items: $items
+			items: $items,
+			total: $domainResult->total,
+			currentPage: $domainResult->currentPage,
+			perPage: $domainResult->perPage,
+			lastPage: $domainResult->lastPage,
 		);
 	}
 }
