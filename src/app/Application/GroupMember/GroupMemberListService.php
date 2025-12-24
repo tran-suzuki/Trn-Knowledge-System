@@ -9,11 +9,11 @@ use App\Models\MtGroup;
 
 final class GroupMemberListService {
 	public function __construct(
-		private readonly GroupMemberRepositoryInterface $groupMemberRepository,
+		private GroupMemberRepositoryInterface $groupMemberRepository,
 	) {}
 
 	public function handle(MtGroup $mtGroup): GroupMemberListResultDto {
-		$domainResult = $this->groupMemberRepository->listByGroupDisplayId([$mtGroup->display_id]);
+		$domainResult = $this->groupMemberRepository->listByGroupDisplayId($mtGroup->display_id);
 
 		$items = array_map(function ($domainMember): GroupMemberListItemDto {
 			$groups = array_map(
