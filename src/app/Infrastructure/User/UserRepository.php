@@ -2,20 +2,20 @@
 
 namespace App\Infrastructure\User;
 
-use App\Domain\User\In\UserDeleteInput;
-use App\Domain\User\In\UserListFilter;
+use App\Domain\Common\Status;
+use App\Domain\User\In\UserListInput;
 use App\Domain\User\Out\UserListResult;
 use App\Domain\User\UserRepositoryInterface;
 use App\Domain\User\View\User;
 use App\Domain\User\View\UserGroup;
+use App\Domain\User\View\UserListItem;
 use App\Domain\User\View\UserRole;
 use App\Models\MtUser;
 use App\Notifications\UserRegisteredNotification;
-use Illuminate\Support\Facades\DB;
 
 class UserRepository implements UserRepositoryInterface {
 
-	public function search(UserListFilter $filter): UserListResult {
+	public function search(UserListInput $filter): UserListResult {
 		$query = MtUser::query()
 			->with([
 				'company' => function ($q) {
@@ -56,16 +56,16 @@ class UserRepository implements UserRepositoryInterface {
 					->map(fn($g) => new UserGroup($g->id, $g->name))
 					->all();
 
-				return User::list(
+				return new UserListItem(
 					id: $model->id,
+					displayId: $model->display_id,
 					fkCompanyId: $model->fk_company_id,
 					name: $model->name,
 					email: $model->email,
 					role: UserRole::from($model->role),
-					status: $model->status,
-					lockVersion: $model->lock_version ?? 0,
+					status: Status::from($model->status),
+					lockVersion: $model->lock_version ?? 1,
 					groups: $groups,
-					displayId: $model->display_id
 				);
 			})
 			->all();
@@ -85,21 +85,29 @@ class UserRepository implements UserRepositoryInterface {
 		return $maxId ? $maxId + 1 : 1;
 	}
 
+	public function existsByDisplayId(string $displayId): bool {
+		return MtUser::query()
+			->whereNull('deleted_at')
+			->where('display_id', $displayId)
+			->exists();
+	}
+
 	public function create(User $user): void {
-		MtUser::create([
+
+		MtUser::query()->create([
 			'id'                        => $user->id,
+			'fk_user_id'                => $user->fkUserId,
+			'display_id'                => $user->displayId,
 			'fk_company_id'             => $user->fkCompanyId,
 			'name'                      => $user->name,
+			'name_kana'                 => $user->nameKana,
 			'email'                     => $user->email,
 			'role'                      => $user->role->value(),
-			'status'                    => $user->status,
-			'password'                  => $user->passwordHash,
+			'status'                    => $user->status->value(),
+			'password'                  => $user->password,
 			'new_email'                 => $user->newEmail,
 			'two_factor_secret'         => $user->twoFactorSecret,
 			'two_factor_recovery_codes' => encrypt(json_encode($user->twoFactorRecoveryCodes())),
-			'display_id'                => $user->displayId,
-			'created_at'                => now(),
-			'updated_at'                => now(),
 		]);
 	}
 
@@ -107,31 +115,6 @@ class UserRepository implements UserRepositoryInterface {
 		$user = MtUser::query()->findOrFail($userId);
 
 		$user->notify(new UserRegisteredNotification());
-	}
-
-	public function delete(UserDeleteInput $input): void {
-		$affected = MtUser::query()
-			->where('id', $input->id)
-			->whereNull('deleted_at')
-			->where('lock_version', $input->lockVersion)
-			->update([
-				'deleted_at'   => now(),
-				'lock_version' => DB::raw('lock_version + 1'),
-			]);
-
-		if ($affected === 0) {
-			$exists = MtUser::query()
-				->where('id', $input->id)
-				->exists();
-
-			if (!$exists) {
-				throw new \RuntimeException('User not found.');
-			}
-
-			throw new OptimisticException(
-				'UserRepository 他のユーザーによって更新されました。再度、選択してください。'
-			);
-		}
 	}
 
 	public function findByIdWithLock(int $id): User {
@@ -142,22 +125,26 @@ class UserRepository implements UserRepositoryInterface {
 			->firstOrFail();
 
 		return new User(
-			id: $model->id,
-			fkCompanyId: $model->fk_company_id,
+			id: (int) $model->id,
+			displayId: $model->display_id,
+			fkCompanyId: (int) $model->fk_company_id,
 			name: $model->name,
+			nameKana: $model->name_kana,
 			email: $model->email,
 			role: UserRole::from($model->role),
-			status: $model->status,
-			lockVersion: $model->lock_version,
-			groups: [],
-			displayId: $model->display_id,
-			twoFactorSecret: $model->two_factor_secret,
-			twoFactorRecoveryCodes: $model->two_factor_recovery_codes
-			? json_decode($model->two_factor_recovery_codes, true)
-			: null,
-			passwordHash: $model->password,
-			newEmail: null
+			status: Status::from($model->status),
+			lockVersion: (int) $model->lock_version
 		);
+	}
+
+	public function delete(User $input): void {
+		MtUser::query()
+			->where('id', $input->id)
+			->whereNull('deleted_at')
+			->update([
+				'deleted_at'   => $input->deletedAt,
+				'lock_version' => $input->lockVersion,
+			]);
 	}
 
 	public function update(User $user): void {
@@ -167,14 +154,15 @@ class UserRepository implements UserRepositoryInterface {
 
 		$model->fk_company_id = $user->fkCompanyId;
 		$model->name          = $user->name;
+		$model->name_kana     = $user->nameKana;
 		$model->email         = $user->email;
 		$model->role          = $user->role->value();
-		$model->status        = $user->status;
+		$model->status        = $user->status->value();
 		$model->lock_version  = $user->lockVersion;
 		$model->display_id    = $user->displayId;
 
-		if ($user->passwordHash !== null) {
-			$model->password = $user->passwordHash;
+		if ($user->password !== null) {
+			$model->password = $user->password;
 		}
 		if ($user->newEmail !== null) {
 			$model->new_email = $user->newEmail;

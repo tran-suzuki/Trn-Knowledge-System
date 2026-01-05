@@ -4,7 +4,7 @@ namespace App\Domain\User\In;
 
 final class UserDeleteInput {
 	public function __construct(
-		public int $id,
-		public int $lockVersion,
+		public readonly int $userId,
+		public readonly int $lockVersion,
 	) {}
 }

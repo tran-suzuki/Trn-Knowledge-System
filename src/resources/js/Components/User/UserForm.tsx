@@ -55,6 +55,21 @@ const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, onDelete }) => 
 				{errors?.name && <p className="text-red-500 text-sm">{errors.name}</p>}
 			</div>
 
+			{/* 3. 氏名 */}
+			<div>
+				<label className="block text-sm mb-1">
+					氏名カナ
+					<span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs">必須</span>
+				</label>
+				<input
+					className="w-full border rounded px-3 py-2"
+					required
+					value={values.nameKana}
+					onChange={(e) => setField('nameKana', e.target.value)}
+					placeholder="山田 太郎"
+				/>
+				{errors?.nameKana && <p className="text-red-500 text-sm">{errors.nameKana}</p>}
+			</div>
 			{/* 4. メールアドレス */}
 			<div>
 				<label className="block text-sm mb-1">

@@ -2,46 +2,31 @@
 
 namespace App\Domain\OperationLog\View;
 
+use App\Domain\OperationLog\In\OperationLogStoreInput;
+
 final class OperationLog {
 	public function __construct(
-		public int $id,
 		public string $displayId,
-		public string $createdDate,
 		public int $fkUserId,
 		public string $action,
+		public string $targetType,
+		public string $targetId,
+		public array $details,
 		public string $ipAddress,
-		public ?array $detail,
-		public ?string $targetType = null,
-		public ?string $targetId = null,
-		public ?string $fkUserName = null,
-		public ?string $fkUserEmail = null,
+		public string $userAgent
 	) {}
 
-	public static function fromListRow(
-		int $id,
-		string $displayId,
-		string $createdDate,
-		int $fkUserId,
-		string $action,
-		string $ipAddress,
-		?array $detail,
-		?string $targetType = null,
-		?string $targetId = null,
-		?string $fkUserName = null,
-		?string $fkUserEmail = null
-	): self {
+	public static function create(OperationLogStoreInput $input): self {
 		return new self(
-			id: $id,
-			displayId: $displayId,
-			createdDate: $createdDate,
-			fkUserId: $fkUserId,
-			action: $action,
-			ipAddress: $ipAddress,
-			detail: $detail,
-			targetType: $targetType,
-			targetId: $targetId,
-			fkUserName: $fkUserName,
-			fkUserEmail: $fkUserEmail,
+			displayId: $input->displayId,
+			fkUserId: $input->fkUserId,
+			action: $input->action,
+			targetType: $input->targetType,
+			targetId: $input->targetId,
+			details: $input->details,
+			ipAddress: $input->ipAddress,
+			userAgent: $input->userAgent
 		);
 	}
+
 }

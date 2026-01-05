@@ -5,27 +5,27 @@ namespace App\Application\User\Dto\In;
 class UserFormUserDto {
 	public function __construct(
 		public int $id,
-		public ?int $fk_company_id,
+		public string $displayId,
+		public int $fkCompanyId,
 		public string $name,
+		public string $nameKana,
 		public string $email,
-		public ?string $new_email,
 		public string $role,
 		public string $status,
-		public int $lock_version,
-		public string $display_id,
+		public int $lockVersion,
 	) {}
 
 	public function toArray(): array {
 		return [
 			'id'            => $this->id,
-			'fk_company_id' => $this->fk_company_id,
+			'display_id'    => $this->displayId,
+			'fk_company_id' => $this->fkCompanyId,
 			'name'          => $this->name,
+			'name_kana'     => $this->nameKana,
 			'email'         => $this->email,
-			'new_email'     => $this->new_email,
 			'role'          => $this->role,
 			'status'        => $this->status,
-			'lock_version'  => $this->lock_version,
-			'display_id'    => $this->display_id,
+			'lock_version'  => $this->lockVersion,
 		];
 	}
 }

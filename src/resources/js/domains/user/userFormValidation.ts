@@ -17,6 +17,10 @@ export const validateUserForm = (values: UserFormValues, mode: 'create' | 'edit'
 		errors.name = msg.username.required;
 	}
 
+	if (!values.nameKana.trim()) {
+		errors.nameKana = msg.nameKana.required;
+	}
+
 	if (!values.email.trim()) {
 		errors.email = msg.email.required;
 	} else {

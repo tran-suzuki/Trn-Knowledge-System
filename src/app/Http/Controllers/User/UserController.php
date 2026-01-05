@@ -113,11 +113,13 @@ class UserController extends Controller {
 
 		try {
 			$inputDto = new UserStoreInputDto(
+				fkUserId: (int) $request->user()->id,
 				fkCompanyId: (int) $request->input('fk_company_id'),
 				name: $request->input('name'),
+				nameKana: $request->input('name_kana'),
 				email: $request->input('email'),
 				password: $request->input('password'),
-				newEmail: $request->input('new_email'),
+				newEmail: $request->input('new_email') ?? null,
 				role: $request->input('role'),
 				status: $request->input('status'),
 			);
@@ -132,7 +134,6 @@ class UserController extends Controller {
 			\Log::error('[UserController][Throwable]', [
 				'error' => $e->getMessage(),
 			]);
-
 			return back()
 				->withInput()
 				->withErrors([
@@ -145,11 +146,11 @@ class UserController extends Controller {
 		$this->authorize('update', $user);
 
 		try {
-			$userDto = $this->userEditService->handle($user);
-			$actor   = $request->user();
+			$user  = $this->userEditService->handle($user->id);
+			$actor = $request->user();
 
 			return Inertia::render('Master/User/Form', [
-				'user'        => $userDto->toArray(),
+				'user'        => $user->toArray(),
 				'companies'   => $this->companyService->getActiveCompanies(),
 				'roles'       => UserRole::from($actor->role)->isManager() ? UserRole::optionsForManager() : UserRole::options(),
 				'statuses'    => Status::options(),
@@ -162,7 +163,7 @@ class UserController extends Controller {
 				'user_id' => $user->id,
 				'error'   => $e->getMessage(),
 			]);
-
+			dd($e->getMessage());
 			return response()->json([
 				'status'  => false,
 				'message' => __('user.no_exist'),
@@ -177,8 +178,11 @@ class UserController extends Controller {
 		try {
 			$inputDto = new UserUpdateInputDto(
 				userId: $user->id,
+				displayId: (string) $user->display_id,
+				fkUpdatedId: (int) $request->user()->id,
 				fkCompanyId: (int) $request->input('fk_company_id'),
 				name: $request->input('name'),
+				nameKana: $request->input('name_kana'),
 				email: $request->input('email'),
 				password: $request->input('password'),
 				newEmail: $request->input('new_email'),
@@ -193,6 +197,17 @@ class UserController extends Controller {
 				->route('users.index')
 				->with('success', __('user.updated'));
 
+		} catch (OptimisticException $e) {
+			\Log::error('[UserController][update]', [
+				'user_id'   => $user->id,
+				'exception' => $e->getMessage(),
+			]);
+			return back()
+				->withInput()
+				->withErrors([
+					'update' => __('user.updated_on_other_device'),
+				]);
+
 		} catch (\Throwable $e) {
 			\Log::error('[UserController][update]', [
 				'user_id' => $user->id,
@@ -201,7 +216,7 @@ class UserController extends Controller {
 			return back()
 				->withInput()
 				->withErrors([
-					'register' => __('user.update_failed'),
+					'update' => __('user.update_failed'),
 				]);
 		}
 	}
@@ -211,7 +226,8 @@ class UserController extends Controller {
 
 		try {
 			$input = new UserDeleteInputDto(
-				id: (int) $user->id,
+				fkUserId: (int) $request->user()->id,
+				userId: (int) $user->id,
 				lockVersion: (int) $request->input('lock_version')
 			);
 
@@ -226,8 +242,9 @@ class UserController extends Controller {
 				'user_id'   => $user->id,
 				'exception' => $e->getMessage(),
 			]);
+			dd($e->getMessage());
 			return back()->withErrors([
-				'lock' => __('user.delete_failed'),
+				'delete' => __('user.delete_failed'),
 			]);
 
 		} catch (\Throwable $e) {
@@ -235,6 +252,7 @@ class UserController extends Controller {
 				'user_id'   => $user->id,
 				'exception' => $e->getMessage(),
 			]);
+			dd($e->getMessage());
 			return back()->withErrors([
 				'delete' => __('user.delete_failed'),
 			]);

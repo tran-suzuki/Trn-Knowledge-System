@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Application\User\Dto\In;
+namespace App\Domain\User\In;
 
-class UserListInputDto {
+final class UserListInput {
 	public function __construct(
 		public readonly ?string $keyword,
 		public readonly ?string $role,

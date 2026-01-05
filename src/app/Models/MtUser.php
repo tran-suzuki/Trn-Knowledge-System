@@ -16,6 +16,7 @@ class MtUser extends Authenticatable {
 		'id',
 		'display_id',
 		'name',
+		'name_kana',
 		'email',
 		'role',
 		'status',

@@ -3,7 +3,7 @@
 return [
 	// List / Search
 	'no_data'                    => '対象のデータが存在しません。',
-
+	'display_id_exist'           => '既に登録済の公開用IDです。',
 	// Create
 	'created'                    => 'ユーザー情報を登録しました。',
 	'create_failed'              => '登録に失敗しました。',

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Application\User\Dto\In;
+namespace App\Domain\User\In;
 
-class UserUpdateInputDto {
+class UserUpdateInput {
 	public function __construct(
-		public readonly int $userId,
+		public readonly int $id,
 		public readonly string $displayId,
 		public readonly int $fkUpdatedId,
 		public readonly int $fkCompanyId,

@@ -24,11 +24,17 @@ class UserStoreRequest extends FormRequest {
 				'max:255',
 			],
 
+			'name_kana'     => [
+				'required',
+				'string',
+				'max:255',
+			],
+
 			'email'         => [
 				'required',
 				'email',
 				'max:255',
-				Rule::unique('mt_users', 'email')->whereNull('deleted_at'),
+				Rule::unique('mt_users', 'email'),
 			],
 
 			'status'        => ['required'],

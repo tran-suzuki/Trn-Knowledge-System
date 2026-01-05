@@ -11,6 +11,7 @@ export interface UserFormUserDto {
 	id: number;
 	fk_company_id: number | null;
 	name: string;
+	name_kana: string;
 	email: string;
 	new_email?: string | null;
 	role: UserRole;
@@ -34,6 +35,7 @@ export interface UserFormPageDto {
 export interface UserFormSubmitDto {
 	fk_company_id: number;
 	name: string;
+	name_kana: string;
 	email: string;
 	new_email?: string | null;
 	password?: string; // create: required, edit: optional

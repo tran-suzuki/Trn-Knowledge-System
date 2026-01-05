@@ -37,6 +37,7 @@ export const mapUserFormPageDtoToDomain = (dto: UserFormPageDto): UserFormDomain
 			id: dto.user.id,
 			fkCompanyId: dto.user.fk_company_id,
 			name: dto.user.name,
+			nameKana: dto.user.name_kana,
 			email: dto.user.email,
 			newEmail: dto.user.new_email ?? null,
 			password: '',
@@ -55,6 +56,7 @@ export const mapUserFormPageDtoToDomain = (dto: UserFormPageDto): UserFormDomain
 		values = {
 			fkCompanyId: defaultCompanyId,
 			name: '',
+			nameKana: '',
 			email: '',
 			newEmail: null,
 			password: '',
@@ -65,7 +67,6 @@ export const mapUserFormPageDtoToDomain = (dto: UserFormPageDto): UserFormDomain
 	}
 
 	const permissions: UserFormPermissions = dto.permissions ? dto.permissions : { canChangeRole: true };
-	console.log('permissions', permissions);
 	return {
 		mode,
 		values,
@@ -78,6 +79,7 @@ export const mapUserFormValuesToSubmitDto = (values: UserFormValues): UserFormSu
 	return {
 		fk_company_id: values.fkCompanyId,
 		name: values.name,
+		name_kana: values.nameKana,
 		email: values.email,
 		new_email: values.newEmail ?? null,
 		password: values.password ? values.password : undefined,

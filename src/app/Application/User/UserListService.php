@@ -5,7 +5,7 @@ namespace App\Application\User;
 use App\Application\User\Dto\In\UserListInputDto;
 use App\Application\User\Dto\Out\UserListResultDto;
 use App\Application\User\Dto\View\UserListItemDto;
-use App\Domain\User\In\UserListFilter;
+use App\Domain\User\In\UserListInput;
 use App\Domain\User\UserRepositoryInterface;
 use App\Domain\User\View\UserRole;
 
@@ -16,7 +16,7 @@ class UserListService {
 
 	public function handle(UserListInputDto $input): UserListResultDto {
 
-		$filter = new UserListFilter(
+		$filterDomain = new UserListInput(
 			keyword: $input->keyword,
 			role: $input->role ? UserRole::from($input->role)->value() : null,
 			status: $input->status,
@@ -24,13 +24,9 @@ class UserListService {
 			perPage: $input->perPage,
 		);
 
-		$domainResult = $this->userRepository->search($filter);
+		$usersDomain = $this->userRepository->search($filterDomain);
 
 		$items = array_map(function ($domainUser) {
-			$groups = array_map(
-				fn($g) => ['id' => $g->id, 'name' => $g->name],
-				$domainUser->groups
-			);
 
 			return new UserListItemDto(
 				id: $domainUser->id,
@@ -38,18 +34,21 @@ class UserListService {
 				name: $domainUser->name,
 				email: $domainUser->email,
 				role: $domainUser->role->value(),
-				status: $domainUser->status,
+				status: $domainUser->status->value(),
 				lockVersion: $domainUser->lockVersion,
-				groups: $groups,
+				groups: array_map(
+					fn($g) => ['id' => $g->id, 'name' => $g->name],
+					$domainUser->groups
+				),
 			);
-		}, $domainResult->items);
+		}, $usersDomain->items);
 
 		return new UserListResultDto(
 			items: $items,
-			total: $domainResult->total,
-			currentPage: $domainResult->currentPage,
-			perPage: $domainResult->perPage,
-			lastPage: $domainResult->lastPage,
+			total: $usersDomain->total,
+			currentPage: $usersDomain->currentPage,
+			perPage: $usersDomain->perPage,
+			lastPage: $usersDomain->lastPage,
 		);
 	}
 }

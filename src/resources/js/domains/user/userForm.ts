@@ -11,6 +11,7 @@ export interface UserFormValues {
 	id?: number; // edit required
 	fkCompanyId: number | null;
 	name: string;
+	nameKana: string;
 	email: string;
 	newEmail?: string | null;
 	password: string; // create required, edit optional

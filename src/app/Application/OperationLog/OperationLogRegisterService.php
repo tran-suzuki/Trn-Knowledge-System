@@ -2,8 +2,10 @@
 
 namespace App\Application\OperationLog;
 
+use App\Application\OperationLog\Dto\In\OperationLogStoreInputDto;
 use App\Domain\OperationLog\In\OperationLogStoreInput;
 use App\Domain\OperationLog\OperationLogRepositoryInterface;
+use App\Domain\OperationLog\View\OperationLog;
 use Illuminate\Support\Str;
 
 class OperationLogRegisterService {
@@ -11,57 +13,34 @@ class OperationLogRegisterService {
 		private OperationLogRepositoryInterface $operationLogRepository,
 	) {}
 
-	public function success(
-		int $actorId,
-		string $action,
-		string $targetType,
-		?int $targetId,
-		array $details = [],
-	): void {
-		$this->write(
-			actorId: $actorId,
-			action: $action,
-			targetType: $targetType,
-			targetId: $targetId,
-			details: $details,
-		);
-	}
+	public function handle(OperationLogStoreInputDto $dto): void {
 
-	public function failed(
-		int $actorId,
-		string $action,
-		string $targetType,
-		?int $targetId,
-		array $details = []
-	): void {
-		$this->write(
-			actorId: $actorId,
-			action: $action,
-			targetType: $targetType,
-			targetId: $targetId,
-			details: $details,
-		);
-	}
-
-	private function write(
-		int $actorId,
-		string $action,
-		string $targetType,
-		?int $targetId,
-		array $details
-	): void {
 		$input = new OperationLogStoreInput(
 			displayId: $this->generateUniqueDisplayId(),
-			fkUserId: $actorId,
-			action: $action,
-			targetType: $targetType,
-			targetId: $targetId,
-			details: $details,
+			fkUserId: $dto->fkUserId,
+			action: $dto->action,
+			targetType: $dto->targetType,
+			targetId: $dto->targetId,
+			details: $dto->details,
 			ipAddress: $this->resolveIp(),
 			userAgent: $this->resolveUserAgent(),
 		);
 
-		$this->operationLogRepository->create($input);
+		$domainInput = OperationLog::create($input);
+
+		$this->operationLogRepository->create($domainInput);
+	}
+
+	private function generateUniqueDisplayId(): string {
+		for ($i = 0; $i < 10; $i++) {
+			$displayId = Str::random(8);
+
+			if (!$this->operationLogRepository->existsByDisplayId($displayId)) {
+				return $displayId;
+			}
+		}
+
+		throw new \RuntimeException(__('group.display_id_exist'));
 	}
 
 	private function resolveIp(): ?string {
@@ -107,17 +86,5 @@ class OperationLogRegisterService {
 			}
 		}
 		return $browser;
-	}
-
-	private function generateUniqueDisplayId(): string {
-		for ($i = 0; $i < 10; $i++) {
-			$displayId = Str::random(8);
-
-			if (!$this->operationLogRepository->existsByDisplayId($displayId)) {
-				return $displayId;
-			}
-		}
-
-		throw new \RuntimeException(__('group.display_id_exist'));
 	}
 }

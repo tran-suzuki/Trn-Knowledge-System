@@ -4,14 +4,14 @@ namespace App\Application\User\Dto\View;
 
 class UserListItemDto {
 	public function __construct(
-		public int $id,
-		public string $displayId,
-		public string $name,
-		public string $email,
-		public string $role,
-		public string $status,
-		public int $lockVersion,
-		public array $groups = [],
+		public readonly int $id,
+		public readonly string $displayId,
+		public readonly string $name,
+		public readonly string $email,
+		public readonly string $role,
+		public readonly string $status,
+		public readonly int $lockVersion,
+		public readonly array $groups = [],
 	) {}
 
 	public function toArray(): array {

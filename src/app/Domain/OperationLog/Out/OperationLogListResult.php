@@ -2,11 +2,11 @@
 
 namespace App\Domain\OperationLog\Out;
 
-use App\Domain\OperationLog\View\OperationLog;
+use App\Domain\OperationLog\View\OperationLogListItem;
 
 final class OperationLogListResult {
 	/**
-	 * @param OperationLog[] $items
+	 * @param OperationLogListItem[] $items
 	 */
 	public function __construct(
 		public array $items,

@@ -20,7 +20,7 @@ interface UserFormState {
 const emptyValues: UserFormValues = {
 	fkCompanyId: null,
 	name: '',
-	//nameKana: '',
+	nameKana: '',
 	email: '',
 	newEmail: null,
 	password: '',

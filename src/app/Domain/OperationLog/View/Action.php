@@ -12,12 +12,9 @@ final class Action {
 	// =========================
 	// User
 	// =========================
-	public const USER_CREATE_SUCCESS = 'USER_CREATE_SUCCESS';
-	public const USER_CREATE_FAIL    = 'USER_CREATE_FAIL';
-	public const USER_UPDATE_SUCCESS = 'USER_UPDATE_SUCCESS';
-	public const USER_UPDATE_FAIL    = 'USER_UPDATE_FAIL';
-	public const USER_DELETE_SUCCESS = 'USER_DELETE_SUCCESS';
-	public const USER_DELETE_FAIL    = 'USER_DELETE_FAIL';
+	public const USER_CREATE = 'USER_CREATE_SUCCESS';
+	public const USER_UPDATE = 'USER_UPDATE';
+	public const USER_DELETE = 'USER_DELETE';
 
 	// =========================
 	// Group
@@ -56,12 +53,9 @@ final class Action {
 			['value' => self::LOGIN_SUCCESS, 'label' => self::LOGIN_SUCCESS],
 			['value' => self::LOGIN_FAIL, 'label' => self::LOGIN_FAIL],
 
-			['value' => self::USER_CREATE_SUCCESS, 'label' => self::USER_CREATE_SUCCESS],
-			['value' => self::USER_CREATE_FAIL, 'label' => self::USER_CREATE_FAIL],
-			['value' => self::USER_UPDATE_SUCCESS, 'label' => self::USER_UPDATE_SUCCESS],
-			['value' => self::USER_UPDATE_FAIL, 'label' => self::USER_UPDATE_FAIL],
-			['value' => self::USER_DELETE_SUCCESS, 'label' => self::USER_DELETE_SUCCESS],
-			['value' => self::USER_DELETE_FAIL, 'label' => self::USER_DELETE_FAIL],
+			['value' => self::USER_CREATE, 'label' => self::USER_CREATE],
+			['value' => self::USER_UPDATE, 'label' => self::USER_UPDATE],
+			['value' => self::USER_DELETE, 'label' => self::USER_DELETE],
 
 			['value' => self::GROUP_CREATE_SUCCESS, 'label' => self::GROUP_CREATE_SUCCESS],
 			['value' => self::GROUP_CREATE_FAIL, 'label' => self::GROUP_CREATE_FAIL],

@@ -2,10 +2,9 @@
 
 namespace App\Application\User\Dto\In;
 
-final class UserDeleteInputDto {
+class UserChangeEmailInputDto {
 	public function __construct(
-		public readonly int $fkUserId,
 		public readonly int $userId,
-		public readonly int $lockVersion,
+		public readonly string $email,
 	) {}
 }

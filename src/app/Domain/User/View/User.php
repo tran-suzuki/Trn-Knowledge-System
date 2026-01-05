@@ -3,113 +3,90 @@
 namespace App\Domain\User\View;
 
 use App\Domain\Common\OptimisticException;
+use App\Domain\Common\Status;
+use App\Domain\User\In\UserDeleteInput;
+use App\Domain\User\In\UserStoreInput;
+use App\Domain\User\In\UserUpdateInput;
 
 final class User {
 	/**
-	 * @param UserGroup[] $groups
+	 * @param UserRole $role
+	 * @param Status $status
 	 */
 	public function __construct(
 		public int $id,
+		public string $displayId,
 		public int $fkCompanyId,
 		public string $name,
+		public string $nameKana,
 		public string $email,
 		public UserRole $role,
-		public string $status,
+		public Status $status,
 		public int $lockVersion,
-		public ?array $groups = [],
-		public ?string $displayId = null,
+		public ?string $password = null,
+		public ?string $newEmail = null,
+		public ?int $fkUserId = null,
+		public ?int $fkUpdatedId = null,
 		public ?string $twoFactorSecret = null,
 		public ?array $twoFactorRecoveryCodes = null,
-		public ?string $passwordHash = null,
-		public ?string $newEmail = null,
-		public ?string $emailChangeToken = null,
-		public ?string $emailVerifiedAt = null
+		public  ? \DateTimeImmutable $deletedAt = null,
 	) {}
 
-	public static function list(
-		int $id,
-		int $fkCompanyId,
-		string $name,
-		string $email,
-		UserRole $role,
-		string $status,
-		int $lockVersion,
-		array $groups = [],
-		string $displayId = null
-	): self {
+	public static function create(UserStoreInput $input) : self {
 		return new self(
-			id: $id,
-			fkCompanyId: $fkCompanyId,
-			name: $name,
-			email: $email,
-			role: $role,
-			status: $status,
-			groups: $groups,
-			lockVersion: $lockVersion,
-			displayId: $displayId,
+			id: $input->id,
+			displayId: $input->displayId,
+			fkCompanyId: $input->fkCompanyId,
+			name: $input->name,
+			nameKana: $input->nameKana,
+			email: $input->email,
+			password: $input->password,
+			newEmail: $input->newEmail,
+			role: UserRole::from($input->role),
+			status: Status::from($input->status),
+			lockVersion: 1,
+			fkUserId: $input->fkUserId,
+			twoFactorSecret: $input->twoFactorSecret,
+			twoFactorRecoveryCodes: $input->twoFactorRecoveryCodes,
 		);
 	}
 
-	public static function create(
-		int $id,
-		int $fkCompanyId,
-		string $name,
-		string $email,
-		UserRole $role,
-		string $status,
-		string $displayId,
-		?string $newEmail,
-		string $passwordHash,
-		string $twoFactorSecret,
-		array $twoFactorRecoveryCodes,
-	): self {
+	public function update(UserUpdateInput $input): self {
+
+		if ((int) $input->lockVersion !== (int) $this->lockVersion) {
+			throw new OptimisticException(__('user.updated_by_other_user'));
+		}
+
 		return new self(
-			id: $id,
-			fkCompanyId: $fkCompanyId,
-			name: $name,
-			email: $email,
-			role: $role,
-			status: $status,
-			displayId: $displayId,
-			newEmail: $newEmail,
-			passwordHash: $passwordHash,
-			twoFactorSecret: $twoFactorSecret,
-			twoFactorRecoveryCodes: $twoFactorRecoveryCodes,
-			lockVersion: 1
+			id: $input->id,
+			displayId: $input->displayId,
+			fkCompanyId: $input->fkCompanyId,
+			name: $input->name,
+			nameKana: $input->nameKana,
+			email: $input->email,
+			role: UserRole::from($input->role),
+			status: Status::from($input->status),
+			lockVersion: $input->lockVersion + 1,
+			password: $input->password,
+			newEmail: $input->newEmail,
+			fkUpdatedId: $input->fkUpdatedId,
 		);
 	}
 
-	public function update(
-		int $fkCompanyId,
-		string $name,
-		string $email,
-		UserRole $role,
-		string $status,
-		?string $passwordHash,
-		?string $newEmail
-	): void {
-		$this->fkCompanyId = $fkCompanyId;
-		$this->name        = $name;
-		$this->email       = $email;
-		$this->role        = $role;
-		$this->status      = $status;
-		if ($newEmail !== null) {
-			$this->newEmail = $newEmail;
+	public function delete(UserDeleteInput $input): self {
+
+		if ((int) $input->lockVersion !== (int) $this->lockVersion) {
+			throw new OptimisticException(__('user.updated_by_other_user'));
 		}
-		if ($passwordHash !== null) {
-			$this->passwordHash = $passwordHash;
-		}
-		$this->lockVersion++;
+
+		$clone              = clone $this;
+		$clone->deletedAt   = new \DateTimeImmutable('now');
+		$clone->lockVersion = $input->lockVersion + 1;
+		return $clone;
 	}
 
 	public function twoFactorRecoveryCodes(): array {
 		return $this->twoFactorRecoveryCodes ?? [];
-	}
-
-	public function assertLockVersion(int $requestLockVersion): void {
-		if ($this->lockVersion !== $requestLockVersion) {
-			throw new OptimisticException(__('user.updated_by_other_user'));
-		}
 	}
 
 }

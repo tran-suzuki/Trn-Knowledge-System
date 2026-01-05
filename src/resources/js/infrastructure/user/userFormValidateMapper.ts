@@ -9,9 +9,9 @@ export const mapServerErrorsToFormErrors = (serverErrors: Record<string, string>
 	if (serverErrors.name) {
 		errors.name = serverErrors.name;
 	}
-	// if (serverErrors.name_kana) {
-	// 	errors.nameKana = serverErrors.name_kana;
-	// }
+	if (serverErrors.name_kana) {
+		errors.nameKana = serverErrors.name_kana;
+	}
 	if (serverErrors.email) {
 		errors.email = serverErrors.email;
 	}

@@ -3,10 +3,11 @@
 namespace App\Infrastructure\OperationLog;
 
 use App\Domain\OperationLog\In\OperationLogListFilter;
-use App\Domain\OperationLog\In\OperationLogStoreInput;
 use App\Domain\OperationLog\OperationLogRepositoryInterface;
 use App\Domain\OperationLog\Out\OperationLogListResult;
 use App\Domain\OperationLog\View\OperationLog;
+use App\Domain\OperationLog\View\OperationLogDetail;
+use App\Domain\OperationLog\View\OperationLogListItem;
 use App\Models\DtOperationLog;
 
 class OperationLogRepository implements OperationLogRepositoryInterface {
@@ -38,16 +39,15 @@ class OperationLogRepository implements OperationLogRepositoryInterface {
 
 		$query->with(['user:id,name,email,display_id'])
 			->orderBy('created_at', 'asc');
-
 		$paginator = $query->paginate(
 			perPage: $filter->perPage,
 			page: $filter->page,
 		);
 
 		$items = $paginator->getCollection()
-			->map(function (DtOperationLog $model) {
+			->map(function (DtOperationLog $model): OperationLogListItem {
 
-				return OperationLog::fromListRow(
+				return new OperationLogListItem(
 					id: $model->id,
 					displayId: $model->display_id,
 					createdDate: $model->created_at->toDateTimeString(),
@@ -72,12 +72,12 @@ class OperationLogRepository implements OperationLogRepositoryInterface {
 		);
 	}
 
-	public function getByDisplayId(string $displayId): OperationLog {
+	public function getByDisplayId(string $displayId): OperationLogDetail {
 		$model = DtOperationLog::query()
 			->where('display_id', $displayId)
 			->firstOrFail();
 
-		return new OperationLog(
+		return new OperationLogDetail(
 			id: $model->id,
 			displayId: $model->display_id,
 			createdDate: $model->created_at->toDateTimeString(),
@@ -92,16 +92,16 @@ class OperationLogRepository implements OperationLogRepositoryInterface {
 		);
 	}
 
-	public function create(OperationLogStoreInput $input): void {
-		DtOperationLog::create([
-			'display_id'  => $input->displayId,
-			'fk_user_id'  => $input->fkUserId,
-			'action'      => $input->action,
-			'target_type' => $input->targetType,
-			'target_id'   => $input->targetId,
-			'details'     => $input->details,
-			'ip_address'  => $input->ipAddress,
-			'user_agent'  => $input->userAgent,
+	public function create(OperationLog $operationLog): void {
+		DtOperationLog::query()->create([
+			'display_id'  => $operationLog->displayId,
+			'fk_user_id'  => $operationLog->fkUserId,
+			'action'      => $operationLog->action,
+			'target_type' => $operationLog->targetType,
+			'target_id'   => $operationLog->targetId,
+			'details'     => $operationLog->details,
+			'ip_address'  => $operationLog->ipAddress,
+			'user_agent'  => $operationLog->userAgent,
 		]);
 	}
 
