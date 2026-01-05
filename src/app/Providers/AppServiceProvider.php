@@ -34,6 +34,10 @@ class AppServiceProvider extends ServiceProvider {
 			\App\Domain\ChatSession\ChatSessionRepositoryInterface::class,
 			\App\Infrastructure\ChatSession\ChatSessionRepository::class
 		);
+		$this->app->bind(
+			\App\Domain\OperationLog\OperationLogRepositoryInterface::class,
+			\App\Infrastructure\OperationLog\OperationLogRepository::class
+		);
 	}
 
 	public function boot(): void {

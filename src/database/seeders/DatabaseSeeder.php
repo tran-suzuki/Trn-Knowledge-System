@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder {
 			DtGroupUserSeeder::class,
 			DtDocumentsSeeder::class,
 			DtChatSessionsSeeder::class,
-			DtChatMessagesSeeder::class,
+			DtChatSessionsSeeder::class,
+			DtOperationLogsSeeder::class,
 		]);
 	}
 }

@@ -9,7 +9,7 @@ use App\Models\MtGroup;
 
 final class GroupMemberListService {
 	public function __construct(
-		private GroupMemberRepositoryInterface $groupMemberRepository,
+		private readonly GroupMemberRepositoryInterface $groupMemberRepository,
 	) {}
 
 	public function handle(MtGroup $mtGroup): GroupMemberListResultDto {

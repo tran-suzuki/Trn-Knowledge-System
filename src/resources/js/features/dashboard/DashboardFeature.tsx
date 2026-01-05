@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 
+
 import { DashboardResponseDto } from '@/Types/dashboard/dashboard';
 import { mapDashboardResponseToDomain } from '@/infrastructure/dashboard/dashboardMapper';
 import AffiliatedGroupsList from '@/Components/Dashboard/AffiliatedGroupsList';
@@ -11,7 +12,7 @@ interface DashboardFeatureProps {
 }
 
 export const DashboardFeature: React.FC<DashboardFeatureProps> = ({ response }) => {
-	const { setInitialData } = useDashboardStore();
+	const {setInitialData } = useDashboardStore();
 
 	useEffect(() => {
 		const domainData = mapDashboardResponseToDomain(response);

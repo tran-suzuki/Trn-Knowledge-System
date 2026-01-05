@@ -33,4 +33,6 @@ interface UserRepositoryInterface {
 	public function mapIdByDisplayId(string $displayId): int;
 
 	public function listOutsideGroupByDisplayId(string $groupId): UserListResult;
+
+	public function getUserOptions(): array;
 }

@@ -291,4 +291,17 @@ class UserRepository implements UserRepositoryInterface {
 			lastPage: 1,
 		);
 	}
+
+	public function getUserOptions(): array {
+		return MtUser::query()
+			->whereNull('deleted_at')
+			->orderBy('name')
+			->pluck('name', 'display_id')
+			->map(fn($name, $display_id) => [
+				'value' => $display_id,
+				'label' => $name,
+			])
+			->values()
+			->toArray();
+	}
 }

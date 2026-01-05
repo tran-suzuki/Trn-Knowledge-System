@@ -1,5 +1,5 @@
-import { ChatSession, DashboardResponse, Group, Message } from '@/domains/dashboard/dashboard';
-import { ChatSessionDto, DashboardResponseDto, GroupDto } from '@/Types/dashboard/dashboard';
+import { ChatSession, DashboardResponse, Group, Message } from "@/domains/dashboard/dashboard";
+import { ChatSessionDto, DashboardResponseDto, GroupDto } from "@/Types/dashboard/dashboard";
 
 const mapGroupDtoToDomain = (dto: GroupDto): Group => {
 	return {
@@ -19,6 +19,7 @@ const mapChatSessionDtoToDomain = (dto: ChatSessionDto): ChatSession => {
 	};
 };
 
+
 export const mapDashboardResponseToDomain = (dto: DashboardResponseDto): DashboardResponse => {
 	const groups: Group[] = dto.groups.map(mapGroupDtoToDomain);
 
@@ -26,12 +27,12 @@ export const mapDashboardResponseToDomain = (dto: DashboardResponseDto): Dashboa
 
 	const message: Message = {
 		group: dto.message.group,
-		chatSessions: dto.message.chat_sessions,
-	};
+		chatSessions: dto.message.chat_sessions
+	}
 
 	return {
 		groups,
 		chatSessions,
-		message,
+		message
 	};
 };

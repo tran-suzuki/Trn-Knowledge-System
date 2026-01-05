@@ -6,6 +6,7 @@ use App\Http\Controllers\Chat\ChatSessionController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\GroupMember\GroupMemberController;
 use App\Http\Controllers\Group\GroupController;
+use App\Http\Controllers\OperationLog\OperationLogController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +59,11 @@ Route::middleware(['auth'])->prefix('groups')->name('groups.')->group(function (
 Route::middleware(['auth'])->prefix('chats')->name('chats.')->group(function () {
 	Route::get('/group/{mtGroup:display_id}', [ChatController::class, 'index'])->name('index');
 	Route::get('/session/{DtChatSession:display_id}', [ChatSessionController::class, 'index'])->name('session.index');
+});
+
+Route::middleware(['auth'])->prefix('audit-logs')->name('audit_logs.')->group(function () {
+	Route::get('/', [OperationLogController::class, 'index'])->name('index');
+	Route::get('/{dtOperationLog:display_id}', [OperationLogController::class, 'detail'])->name('detail');
 });
 
 //todo

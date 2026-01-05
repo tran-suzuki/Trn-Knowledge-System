@@ -74,7 +74,6 @@ final class GroupMemberRepository implements GroupMemberRepositoryInterface {
 		})->all();
 		return new GroupMemberListResult(items: $items);
 	}
-
 	public function findItemByGroupIdAndUserId(GroupMembersFindItemInput $input): GroupMember {
 		$groupUser = DtGroupUser::query()
 			->where('fk_group_id', $input->groupId)

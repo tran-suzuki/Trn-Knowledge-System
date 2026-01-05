@@ -1,4 +1,4 @@
-import type { UserFormPageDto, UserFormSubmitDto } from '@/types/user/userForm';
+import type { UserFormPageDto, UserFormSubmitDto} from '@/types/user/userForm';
 import type { SelectOption } from '@/domains/common/selectOption';
 import type {
 	UserFormDomainData,
