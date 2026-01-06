@@ -6,6 +6,7 @@ import {
 	mapDeleteGroupMemberRequestToDto,
 	mapGroupMemberChangeRolesRequestToDto,
 } from '../groupMember/groupMemberListMapper';
+import { Member } from '@/domains/groupMember/groupMemberList';
 
 export const groupMemberRepository = {
 	async getGroupMember(displayId: string) {
@@ -24,22 +25,9 @@ export const groupMemberRepository = {
 		return res.data;
 	},
 
-	async changeMembersRole(displayId: string, memberDisplayIds: string[], role: string) {
-		const payload = mapGroupMemberChangeRolesRequestToDto({ memberDisplayIds, role });
+	async changeMembersRole(displayId: string, members: Member[], role: string) {
+		const payload = mapGroupMemberChangeRolesRequestToDto({ members, role });
 		const res = await axios.patch(route('groups.members.bulk_update_role', displayId), payload);
-		return res.data;
-	},
-
-	async changeMemberRole(groupDisplayId: string, memberDisplayId: string, role: string) {
-		const res = await axios.patch(
-			route('groups.members.update_role', {
-				mtGroup: groupDisplayId,
-				member: memberDisplayId,
-			}),
-			{
-				role,
-			},
-		);
 		return res.data;
 	},
 

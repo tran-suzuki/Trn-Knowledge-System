@@ -22,3 +22,16 @@ export interface DashboardResponse {
 	chatSessions: ChatSession[];
 	message: Message;
 }
+
+export interface DashboardGroupResponse {
+	groups: Group[];
+	hasMore: boolean;
+	nextCursor: number;
+}
+
+export interface DashboardChatSessionResponse {
+	chatSessions: ChatSession[];
+	message: string | null;
+}
+
+export type Cursor = string | number | null;

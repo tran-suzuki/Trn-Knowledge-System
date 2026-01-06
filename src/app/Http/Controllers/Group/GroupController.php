@@ -99,11 +99,11 @@ class GroupController extends Controller {
 			$actor = $request->user();
 
 			$inputDto = new GroupStoreInputDto(
-				actorId: (int) $actor->id,
+				fkUserId: (int) $actor->id,
 				fkCompanyId: (int) $request->input('fk_company_id'),
 				name: $request->input('name'),
 				status: $request->input('status'),
-				description: $request->input('description'),
+				description: $request->input('description') ?? '',
 			);
 
 			$this->groupRegisterService->handle($inputDto);
@@ -142,7 +142,7 @@ class GroupController extends Controller {
 			$actor = $request->user();
 
 			$input = new GroupDetailInputDto(
-				displayId: $mtGroup->display_id
+				groupId: (int) $mtGroup->id
 			);
 
 			$result = $this->groupDetailService->handle($input);
@@ -177,7 +177,8 @@ class GroupController extends Controller {
 
 		try {
 			$input = new GroupDeleteInputDto(
-				id: $mtGroup->id,
+				fkUserId: (int) $request->user()->id,
+				groupId: (int) $mtGroup->id,
 				lockVersion: (int) $request->input('lock_version')
 			);
 

@@ -2,24 +2,59 @@
 
 namespace App\Infrastructure\GroupMember;
 
-use App\Domain\Common\OptimisticException;
 use App\Domain\GroupMember\GroupMemberRepositoryInterface;
-use App\Domain\GroupMember\In\GroupMemberChangeRolesInput;
+use App\Domain\GroupMember\In\GroupMemberChangeRolesInputs;
 use App\Domain\GroupMember\In\GroupMemberDeleteByGroupIdInput;
-use App\Domain\GroupMember\In\GroupMemberDeleteInput;
+use App\Domain\GroupMember\In\GroupMemberListInput;
 use App\Domain\GroupMember\In\GroupMemberSearchInput;
 use App\Domain\GroupMember\In\GroupMembersFindItemInput;
-use App\Domain\GroupMember\In\GroupMembersStoreInput;
 use App\Domain\GroupMember\Out\GroupMemberList;
 use App\Domain\GroupMember\Out\GroupMemberListResult;
 use App\Domain\GroupMember\View\GroupMember;
+use App\Domain\GroupMember\View\GroupMemberListItem;
 use App\Domain\Group\View\GroupRole;
 use App\Domain\User\View\UserGroup;
 use App\Domain\User\View\UserRole;
 use App\Models\DtGroupUser;
 
 final class GroupMemberRepository implements GroupMemberRepositoryInterface {
-	public function search(GroupMemberSearchInput $input): GroupMemberList {
+	public function search(GroupMemberListInput $input): GroupMemberListResult {
+
+		$query = DtGroupUser::query()
+			->where('fk_group_id', $input->groupId)
+			->whereNull('deleted_at');
+
+		$query->orderBy('fk_user_id');
+
+		$paginator = $query->paginate(
+			perPage: $input->perPage,
+			page: $input->page,
+		);
+
+		$items = $paginator->getCollection()->map(function (DtGroupUser $gu) {
+			$groups = $gu->user->groups
+				->map(fn($g) => new UserGroup($g->id, $g->name))
+				->all();
+
+			return new GroupMemberListItem(
+				id: $gu->id,
+				fkUserId: $gu->fk_user_id,
+				fkgroupId: $gu->fk_group_id,
+				lockVersion: $gu->lock_version,
+				memberName: $gu->user->name,
+				memberEmail: $gu->user->email,
+				memberGroups: $groups,
+				memberDisplay: $gu->user->display_id,
+				memberRole: UserRole::from($gu->user->role),
+				groupDisplay: $gu->group->display_id,
+				groupRole: GroupRole::from($gu->role)
+			);
+		})->all();
+
+		return new GroupMemberListResult(items: $items);
+	}
+
+	public function searchDB(GroupMemberSearchInput $input): GroupMemberList {
 
 		$query = DtGroupUser::query()
 			->whereNull('dt_group_user.deleted_at')
@@ -40,58 +75,46 @@ final class GroupMemberRepository implements GroupMemberRepositoryInterface {
 		return new GroupMemberList($groupIds, $userIds);
 	}
 
-	public function listByGroupDisplayId(string $groupDisplayId): GroupMemberListResult {
-
-		$groupUsers = DtGroupUser::query()
-			->with([
-				'user.groups' => function ($q) {
-					$q->whereNull('mt_groups.deleted_at')
-						->select('mt_groups.id', 'mt_groups.name');
-				},
-			])
-			->whereHas('group', function ($q) use ($groupDisplayId) {
-				$q->where('display_id', $groupDisplayId)
-					->whereNull('mt_groups.deleted_at');
-			})
-			->whereNull('dt_group_user.deleted_at')
-			->get();
-
-		$items = $groupUsers->map(function (DtGroupUser $gu): GroupMember {
-			$groups = $gu->user->groups
-				->map(fn($g) => new UserGroup($g->id, $g->name))
-				->all();
-
-			return GroupMember::list(
-				id: $gu->user->id,
-				displayId: $gu->user->display_id,
-				name: $gu->user->name,
-				email: $gu->user->email,
-				lockVersion: $gu->lock_version,
-				groups: $groups,
-				systemRole: UserRole::from($gu->user->role),
-				groupRole: GroupRole::from($gu->role)
-			);
-		})->all();
-		return new GroupMemberListResult(items: $items);
-	}
-	public function findItemByGroupIdAndUserId(GroupMembersFindItemInput $input): GroupMember {
-		$groupUser = DtGroupUser::query()
+	public function findByGroupIdWithUserId(GroupMembersFindItemInput $input): GroupMember {
+		$model = DtGroupUser::query()
 			->where('fk_group_id', $input->groupId)
 			->where('fk_user_id', $input->memberId)
 			->whereNull('dt_group_user.deleted_at')
-			->first();
+			->firstOrFail();
 
-		return GroupMember::itemLockVersion(
-			lockVersion: (string) $groupUser->lock_version
+		return new GroupMember(
+			fkCreatedBy: (int) $model->fk_created_by,
+			fkGroupId: (int) $model->fk_group_id,
+			memberIds: [(int) $model->fk_user_id],
+			role: GroupRole::from($model->role),
+			lockVersion: (int) $model->lock_version,
+			id: (int) $model->id,
 		);
 	}
 
-	public function create(GroupMembersStoreInput $groupMember): void {
+	public function findByGroupIdWithUserIds(GroupMembersFindItemInput $input): array {
+		$rows = DtGroupUser::query()
+			->where('fk_group_id', $input->groupId)
+			->whereIn('fk_user_id', $input->memberIds)
+			->whereNull('dt_group_user.deleted_at')
+			->get();
+
+		return $rows->map(fn($model) => new GroupMember(
+			fkCreatedBy: (int) $model->fk_created_by,
+			fkGroupId: (int) $model->fk_group_id,
+			memberIds: [(int) $model->fk_user_id],
+			role: GroupRole::from($model->role),
+			lockVersion: (int) $model->lock_version,
+			id: (int) $model->id,
+		))->all();
+	}
+
+	public function create(GroupMember $groupMember): void {
 		$memberIds = array_values(array_unique($groupMember->memberIds));
 
 		foreach ($memberIds as $memberId) {
 			$row = DtGroupUser::withTrashed()
-				->where('fk_group_id', $groupMember->groupId)
+				->where('fk_group_id', $groupMember->fkGroupId)
 				->where('fk_user_id', $memberId)
 				->first();
 
@@ -100,66 +123,54 @@ final class GroupMemberRepository implements GroupMemberRepositoryInterface {
 					$row->restore();
 				}
 
-				$row->role          = $groupMember->defaultRole->value();
+				$row->role          = $groupMember->role->value();
 				$row->lock_version  = ($row->lock_version ?? 0) + 1;
-				$row->fk_created_by = $groupMember->actorId;
+				$row->fk_created_by = $groupMember->fkCreatedBy;
 				$row->save();
 
 				continue;
 			}
 
 			DtGroupUser::create([
-				'fk_group_id'   => $groupMember->groupId,
+				'fk_group_id'   => $groupMember->fkGroupId,
 				'fk_user_id'    => $memberId,
-				'fk_created_by' => $groupMember->actorId,
-				'role'          => $groupMember->defaultRole->value(),
-				'lock_version'  => 1,
+				'fk_created_by' => $groupMember->fkCreatedBy,
+				'role'          => $groupMember->role->value(),
+				'lock_version'  => $groupMember->lockVersion,
 			]);
 		}
 
 	}
 
-	public function changeRoles(GroupMemberChangeRolesInput $input): void {
-		$memberIds = array_values(array_unique($input->memberIds));
+	public function changeRoles(GroupMemberChangeRolesInputs $input): void {
 
+		foreach ($input->groupMembers as $gm) {
+			DtGroupUser::query()
+				->where('id', $gm->id)
+				->update([
+					'role'         => $gm->role->value(),
+					'lock_version' => $gm->lockVersion,
+				]);
+		}
+	}
+
+	public function delete(GroupMember $groupMember): void {
 		DtGroupUser::query()
-			->where('fk_group_id', $input->groupId)
-			->whereIn('fk_user_id', $memberIds)
-			->increment('lock_version', 1, [
-				'role' => $input->role,
-			]);
-	}
-
-	public function delete(GroupMemberDeleteInput $input): void {
-		$affected = DtGroupUser::query()
-			->where('fk_group_id', $input->groupId)
-			->where('fk_user_id', $input->memberId)
+			->where('id', $groupMember->id)
 			->whereNull('deleted_at')
-			->where('lock_version', $input->lockVersion)
-			->increment('lock_version', 1, [
-				'deleted_at' => now(),
+			->update([
+				'deleted_at'   => $groupMember->deletedAt,
+				'lock_version' => $groupMember->lockVersion,
 			]);
-
-		if ($affected === 0) {
-			$exists = DtGroupUser::query()
-				->where('fk_group_id', $input->groupId)
-				->where('fk_user_id', $input->memberId)
-				->exists();
-
-			if (!$exists) {
-				throw new \RuntimeException(___('groupMember.no_exist'));
-			}
-
-			throw new OptimisticException(___('groupMember.check_lock_version'));
-		}
 	}
 
 	public function deleteByGroupId(GroupMemberDeleteByGroupIdInput $input): void {
 		DtGroupUser::query()
 			->where('fk_group_id', $input->groupId)
 			->whereNull('deleted_at')
-			->increment('lock_version', 1, [
-				'deleted_at' => now(),
+			->update([
+				'deleted_at'   => $input->deletedAt,
+				'lock_version' => $input->lockVersion,
 			]);
 	}
 }

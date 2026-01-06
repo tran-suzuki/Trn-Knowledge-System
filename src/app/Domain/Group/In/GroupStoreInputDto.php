@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Domain\Group\In;
+namespace App\Application\Group\Dto\In;
 
-final class GroupStoreInput {
+class GroupStoreInputDto {
 	public function __construct(
-		public readonly int $id,
 		public readonly int $fkUserId,
-		public readonly string $displayId,
 		public readonly int $fkCompanyId,
 		public readonly string $name,
 		public readonly string $status,
-		public readonly ?string $description
+		public readonly ?string $description = null,
 	) {}
 }

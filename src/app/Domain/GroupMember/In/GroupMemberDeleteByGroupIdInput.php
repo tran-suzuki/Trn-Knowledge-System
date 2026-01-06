@@ -4,6 +4,8 @@ namespace App\Domain\GroupMember\In;
 
 final class GroupMemberDeleteByGroupIdInput {
 	public function __construct(
-		public string $groupId
+		public readonly string $groupId,
+		public \DateTimeImmutable $deletedAt,
+		public ?int $lockVersion = 1,
 	) {}
 }

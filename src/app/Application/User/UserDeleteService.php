@@ -26,7 +26,7 @@ class UserDeleteService {
 			DB::transaction(function () use ($dto) {
 
 				$user = $this->userRepository->findByIdWithLock($dto->userId);
-				dd($user);
+
 				$userDomainInput = new UserDeleteInput(
 					userId: $dto->userId,
 					lockVersion: $dto->lockVersion

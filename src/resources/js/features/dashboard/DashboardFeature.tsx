@@ -1,23 +1,27 @@
-import React, { useEffect } from 'react';
-
-
-import { DashboardResponseDto } from '@/Types/dashboard/dashboard';
-import { mapDashboardResponseToDomain } from '@/infrastructure/dashboard/dashboardMapper';
+import React, { useEffect, useRef } from 'react';
+import { mapChatSessionListDtoToDomain } from '@/infrastructure/dashboard/dashboardMapper';
 import AffiliatedGroupsList from '@/Components/Dashboard/AffiliatedGroupsList';
 import RecentChatHistory from '@/Components/Dashboard/RecentChatHistory';
 import { useDashboardStore } from '@/stores/dashboard/dashboardStore';
+import { dashboardRepository } from '@/infrastructure/dashboard/dashboardRepository';
 
-interface DashboardFeatureProps {
-	response: DashboardResponseDto;
-}
+export const DashboardFeature: React.FC = () => {
+	const { setChatSessions } = useDashboardStore();
 
-export const DashboardFeature: React.FC<DashboardFeatureProps> = ({ response }) => {
-	const {setInitialData } = useDashboardStore();
+	const calledRef = useRef(false);
 
 	useEffect(() => {
-		const domainData = mapDashboardResponseToDomain(response);
-		setInitialData(domainData);
-	}, [response, setInitialData]);
+		if (calledRef.current) return;
+		calledRef.current = true;
+
+		(async () => {
+			const res = await dashboardRepository.getChatSessions();
+			if (res?.status) {
+				const chatSessionListRes = mapChatSessionListDtoToDomain(res?.data);
+				setChatSessions(chatSessionListRes.chatSessions);
+			}
+		})();
+	}, []);
 
 	return (
 		<>

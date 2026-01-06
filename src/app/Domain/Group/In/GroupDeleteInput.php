@@ -4,7 +4,7 @@ namespace App\Domain\Group\In;
 
 final class GroupDeleteInput {
 	public function __construct(
-		public string $id,
-		public string $lockVersion,
+		public readonly int $groupId,
+		public readonly int $lockVersion,
 	) {}
 }

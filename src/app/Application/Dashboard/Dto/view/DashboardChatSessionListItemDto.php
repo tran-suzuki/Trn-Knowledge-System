@@ -2,20 +2,19 @@
 
 namespace App\Application\Dashboard\Dto\View;
 
-final class DashboardChatSessionItemDto {
+final class DashboardChatSessionListItemDto {
 	public function __construct(
-		public string $displayId,
-		public string $groupName,
-		public string $title,
-		public string $updatedAt
+		public readonly string $displayId,
+		public readonly string $title,
+		public readonly string $updatedAt,
+		public readonly string $groupName,
 	) {}
-
 	public function toArray(): array {
 		return [
 			'display_id' => $this->displayId,
-			'group_name' => $this->groupName,
 			'title'      => $this->title,
 			'updated_at' => $this->updatedAt,
+			'group_name' => $this->groupName,
 		];
 	}
 }

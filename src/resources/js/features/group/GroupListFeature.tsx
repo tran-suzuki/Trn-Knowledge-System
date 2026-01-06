@@ -73,10 +73,10 @@ export const GroupListFeature: React.FC<GroupListFeatureProps> = ({ response }) 
 		resetGroupDetail();
 	}, [response, selectedGroupDisplayId, setInitialData, setSelectedGroupDisplayId, resetGroupDetail, handleGetGroup]);
 
-	useEffect(() => {
-		if (selectedGroupDisplayId === null) return;
-		getGroup(selectedGroupDisplayId);
-	}, [selectedGroupDisplayId, getGroup]);
+	// useEffect(() => {
+	// 	if (selectedGroupDisplayId === null) return;
+	// 	getGroup(selectedGroupDisplayId);
+	// }, [selectedGroupDisplayId, getGroup]);
 
 	return (
 		<>

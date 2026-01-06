@@ -4,66 +4,38 @@ namespace App\Application\Dashboard;
 
 use App\Application\Dashboard\Dto\In\DashboardGroupListInputDto;
 use App\Application\Dashboard\Dto\Out\DashboardGroupListResultDto;
-use App\Application\Dashboard\Dto\View\DashboardChatSessionItemDto;
 use App\Application\Dashboard\Dto\View\DashboardGroupListItemDto;
-use App\Domain\ChatSession\ChatSessionRepositoryInterface;
-use App\Domain\ChatSession\In\ChatSessionSearchInput;
-use App\Domain\Dashboard\In\DashboardGroupListInput;
-use App\Domain\GroupMember\GroupMemberRepositoryInterface;
-use App\Domain\GroupMember\In\GroupMemberSearchInput;
 use App\Domain\Group\GroupRepositoryInterface;
+use App\Domain\Group\In\GroupListForDashboardInput;
 use App\Domain\User\View\UserRole;
 
 class DashboardGroupListService {
 	public function __construct(
 		private GroupRepositoryInterface $groupRepository,
-		private GroupMemberRepositoryInterface $groupMemberRepository,
-		private ChatSessionRepositoryInterface $chatSessionRepository
 	) {}
 
 	public function handle(DashboardGroupListInputDto $input): DashboardGroupListResultDto {
-
-		$filter = new DashboardGroupListInput(
+		$filter = new GroupListForDashboardInput(
 			actorId: $input->actorId,
 			actorSystemRole: UserRole::fromNullable($input->actorSystemRole),
+			limit: $input->limit,
+			cursor: $input->cursor,
 		);
-		$groupListDomain = $this->groupRepository->listGroupsForDashboard($filter);
+		$groupsDomain = $this->groupRepository->listGroupsForDashboard($filter);
 
-		$groupIds = [];
-		$groups   = array_map(function ($domainUser) use (&$groupIds) {
-			$groupIds[] = $domainUser->id;
-
+		$groups = array_map(function ($domainUser) {
 			return new DashboardGroupListItemDto(
 				displayId: $domainUser->displayId,
 				name: $domainUser->name,
-				memberCount: $domainUser->userCount,
+				memberCount: $domainUser->memberCount,
 				documentCount: $domainUser->documentCount,
 			);
-		}, $groupListDomain->items);
-
-		$groupMemberInput = new GroupMemberSearchInput(
-			groupIds: $groupIds,
-		);
-		$groupMembers = $this->groupMemberRepository->search($groupMemberInput);
-
-		$chatSessionInput = new ChatSessionSearchInput(
-			groupIds: $groupMembers->groupIds,
-			userIds: $groupMembers->userIds,
-		);
-
-		$chatSesssionDomains = $this->chatSessionRepository->search($chatSessionInput);
-		$chatSessions        = array_map(function ($domainUser): DashboardChatSessionItemDto {
-			return new DashboardChatSessionItemDto(
-				displayId: $domainUser->displayId,
-				groupName: $domainUser->groupName,
-				title: $domainUser->title,
-				updatedAt: $domainUser->updatedAt,
-			);
-		}, $chatSesssionDomains->items);
+		}, $groupsDomain->items);
 
 		return new DashboardGroupListResultDto(
 			groups: $groups,
-			chatSessions: $chatSessions,
+			nextCursor: $groupsDomain->nextCursor,
+			hasMore: $groupsDomain->hasMore,
 		);
 	}
 }

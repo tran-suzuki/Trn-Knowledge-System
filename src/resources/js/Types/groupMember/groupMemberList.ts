@@ -1,6 +1,11 @@
 import type { UserRole } from '@/Types/common/role';
 import type { Status } from '@/types/common/status';
 
+export type MemberDto = {
+	display_id: string;
+	lock_version: number;
+};
+
 export interface GroupMemberPermissionDto {
 	can_change_role: boolean;
 	can_remove: boolean;
@@ -48,7 +53,7 @@ export type AddGroupMembersRequestDto = {
 
 // ----------change role-------
 export type GroupMemberChangeRolesRequestDto = {
-	member_display_ids: string[];
+	members: MemberDto[];
 	role: string;
 };
 

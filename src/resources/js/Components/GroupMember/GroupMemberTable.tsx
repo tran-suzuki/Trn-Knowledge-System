@@ -18,12 +18,12 @@ const GroupMemberTable: React.FC<GroupMemberTableProps> = ({ onSuccess }) => {
 	const { groupMembers } = useGroupMemberListStore();
 
 	const [openChangeSingleMemberRole, setOpenChangeSingleMemberRole] = useState<boolean>(false);
-	const [memberDisplayIdToChangeRole, setMemberDisplayIdToChangeRole] = useState<string>();
+	const [memberSeleted, setMemberSeleted] = useState<GroupMemberListItem>();
 
 	const handleChangeSingleMemberRole = (member: GroupMemberListItem) => {
 		if (!member.permissions.canChangeRole) return;
 
-		setMemberDisplayIdToChangeRole(member.displayId);
+		setMemberSeleted(member);
 		setOpenChangeSingleMemberRole(true);
 	};
 
@@ -123,7 +123,7 @@ const GroupMemberTable: React.FC<GroupMemberTableProps> = ({ onSuccess }) => {
 			</div>
 			{openChangeSingleMemberRole && (
 				<ChangeSingleMemberRoleModal
-					displayId={memberDisplayIdToChangeRole}
+					member={memberSeleted}
 					open={openChangeSingleMemberRole}
 					onClose={() => setOpenChangeSingleMemberRole(false)}
 					onSuccess={onSuccess}

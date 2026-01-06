@@ -3,7 +3,6 @@
 namespace App\Application\Group;
 
 use App\Application\Group\Dto\In\GroupDetailInputDto;
-use App\Application\Group\Dto\Out\GroupDetailResultDto;
 use App\Application\Group\Dto\View\GroupDetailDto;
 use App\Domain\Group\GroupRepositoryInterface;
 
@@ -12,18 +11,15 @@ final class GroupDetailService {
 		private readonly GroupRepositoryInterface $groupRepository,
 	) {}
 
-	public function handle(GroupDetailInputDto $input): GroupDetailResultDto {
+	public function handle(GroupDetailInputDto $dto): GroupDetailDto {
+		$group = $this->groupRepository->getById($dto->groupId);
 
-		$group = $this->groupRepository->getByDisplayId(displayId: $input->displayId);
-
-		$view = new GroupDetailDto(
+		return new GroupDetailDto(
 			displayId: $group->displayId,
 			name: $group->name,
-			userCount: $group->userCount,
 			description: $group->description,
 			lockVersion: $group->lockVersion,
+			userCount: $group->memberCount,
 		);
-
-		return new GroupDetailResultDto(group: $view);
 	}
 }

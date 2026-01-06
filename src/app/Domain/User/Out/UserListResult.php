@@ -9,9 +9,9 @@ final class UserListResult {
 	 */
 	public function __construct(
 		public readonly array $items,
-		public readonly ?int $currentPage,
-		public readonly ?int $perPage,
-		public readonly ?int $total,
-		public readonly ?int $lastPage,
+		public readonly ?int $currentPage = 0,
+		public readonly ?int $perPage = 0,
+		public readonly ?int $total = 0,
+		public readonly ?int $lastPage = 0,
 	) {}
 }

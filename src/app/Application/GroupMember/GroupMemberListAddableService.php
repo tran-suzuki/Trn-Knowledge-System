@@ -9,12 +9,12 @@ use App\Domain\User\UserRepositoryInterface;
 
 final class GroupMemberListAddableService {
 	public function __construct(
-		private readonly UserRepositoryInterface $userRepositoryInterface,
+		private readonly UserRepositoryInterface $userRepository,
 	) {}
 
 	public function handle(GroupMemberListAddableInputDto $input): GroupMemberListAddableResultDto {
 
-		$domainResult = $this->userRepositoryInterface->listOutsideGroupByDisplayId($input->groupId);
+		$domainResult = $this->userRepository->listAddableMembers($input->groupId);
 
 		$items = array_map(function ($domainMember) {
 			$groups = array_map(
@@ -26,7 +26,7 @@ final class GroupMemberListAddableService {
 				name: $domainMember->name,
 				email: $domainMember->email,
 				role: $domainMember->role->value(),
-				status: $domainMember->status,
+				status: $domainMember->status->value(),
 				lockVersion: $domainMember->lockVersion,
 				groups: $groups
 			);

@@ -12,29 +12,23 @@ final class Action {
 	// =========================
 	// User
 	// =========================
-	public const USER_CREATE = 'USER_CREATE_SUCCESS';
+	public const USER_CREATE = 'USER_CREATE';
 	public const USER_UPDATE = 'USER_UPDATE';
 	public const USER_DELETE = 'USER_DELETE';
 
 	// =========================
 	// Group
 	// =========================
-	public const GROUP_CREATE_SUCCESS = 'GROUP_CREATE_SUCCESS';
-	public const GROUP_CREATE_FAIL    = 'GROUP_CREATE_FAIL';
-	public const GROUP_UPDATE_SUCCESS = 'GROUP_UPDATE_SUCCESS';
-	public const GROUP_UPDATE_FAIL    = 'GROUP_UPDATE_FAIL';
-	public const GROUP_DELETE_SUCCESS = 'GROUP_DELETE_SUCCESS';
-	public const GROUP_DELETE_FAIL    = 'GROUP_DELETE_FAIL';
+	public const GROUP_CREATE = 'GROUP_CREATE';
+	public const GROUP_UPDATE = 'GROUP_UPDATE';
+	public const GROUP_DELETE = 'GROUP_DELETE';
 
 	// =========================
 	// Group Member
 	// =========================
-	public const GROUP_MEMBER_ADD_SUCCESS         = 'GROUP_MEMBER_ADD_SUCCESS';
-	public const GROUP_MEMBER_ADD_FAIL            = 'GROUP_MEMBER_ADD_FAIL';
-	public const GROUP_MEMBER_REMOVE_SUCCESS      = 'GROUP_MEMBER_REMOVE_SUCCESS';
-	public const GROUP_MEMBER_REMOVE_FAIL         = 'GROUP_MEMBER_REMOVE_FAIL';
-	public const GROUP_MEMBER_CHANGE_ROLE_SUCCESS = 'GROUP_MEMBER_CHANGE_ROLE_SUCCESS';
-	public const GROUP_MEMBER_CHANGE_ROLE_FAIL    = 'GROUP_MEMBER_CHANGE_ROLE_FAIL';
+	public const GROUP_MEMBER_CREATE      = 'GROUP_MEMBER_CREATE';
+	public const GROUP_MEMBER_DELETE      = 'GROUP_MEMBER_DELETE';
+	public const GROUP_MEMBER_CHANGE_ROLE = 'GROUP_MEMBER_CHANGE_ROLE';
 
 	private function __construct(
 		private readonly string $value
@@ -57,19 +51,13 @@ final class Action {
 			['value' => self::USER_UPDATE, 'label' => self::USER_UPDATE],
 			['value' => self::USER_DELETE, 'label' => self::USER_DELETE],
 
-			['value' => self::GROUP_CREATE_SUCCESS, 'label' => self::GROUP_CREATE_SUCCESS],
-			['value' => self::GROUP_CREATE_FAIL, 'label' => self::GROUP_CREATE_FAIL],
-			['value' => self::GROUP_UPDATE_SUCCESS, 'label' => self::GROUP_UPDATE_SUCCESS],
-			['value' => self::GROUP_UPDATE_FAIL, 'label' => self::GROUP_UPDATE_FAIL],
-			['value' => self::GROUP_DELETE_SUCCESS, 'label' => self::GROUP_DELETE_SUCCESS],
-			['value' => self::GROUP_DELETE_FAIL, 'label' => self::GROUP_DELETE_FAIL],
+			['value' => self::GROUP_CREATE, 'label' => self::GROUP_CREATE],
+			['value' => self::GROUP_UPDATE, 'label' => self::GROUP_UPDATE],
+			['value' => self::GROUP_DELETE, 'label' => self::GROUP_DELETE],
 
-			['value' => self::GROUP_MEMBER_ADD_SUCCESS, 'label' => self::GROUP_MEMBER_ADD_SUCCESS],
-			['value' => self::GROUP_MEMBER_ADD_FAIL, 'label' => self::GROUP_MEMBER_ADD_FAIL],
-			['value' => self::GROUP_MEMBER_REMOVE_SUCCESS, 'label' => self::GROUP_MEMBER_REMOVE_SUCCESS],
-			['value' => self::GROUP_MEMBER_REMOVE_FAIL, 'label' => self::GROUP_MEMBER_REMOVE_FAIL],
-			['value' => self::GROUP_MEMBER_CHANGE_ROLE_SUCCESS, 'label' => self::GROUP_MEMBER_CHANGE_ROLE_SUCCESS],
-			['value' => self::GROUP_MEMBER_CHANGE_ROLE_FAIL, 'label' => self::GROUP_MEMBER_CHANGE_ROLE_FAIL],
+			['value' => self::GROUP_MEMBER_CREATE, 'label' => self::GROUP_MEMBER_CREATE],
+			['value' => self::GROUP_MEMBER_DELETE, 'label' => self::GROUP_MEMBER_DELETE],
+			['value' => self::GROUP_MEMBER_CHANGE_ROLE, 'label' => self::GROUP_MEMBER_CHANGE_ROLE],
 		];
 	}
 }

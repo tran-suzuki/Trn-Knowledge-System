@@ -2,7 +2,13 @@
 
 namespace App\Domain\Group\Out;
 
+use App\Domain\Group\View\GroupListItem;
+
 final class GroupListResult {
+	/**
+	 * @param GroupListItem $items
+	 */
+
 	public function __construct(
 		public array $items,
 		public ?int $currentPage = 0,

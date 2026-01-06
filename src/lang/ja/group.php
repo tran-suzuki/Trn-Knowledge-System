@@ -11,4 +11,5 @@ return [
 	'updated'            => 'グループ情報を更新しました。',
 	'update_failed'      => '更新に失敗しました。',
 	'check_lock_version' => '他のユーザーによって更新されました。再度、選択してください。',
+	'get_list_failed'    => 'グループ情報の取得に失敗しました。',
 ];

@@ -2,7 +2,6 @@
 
 namespace App\Application\OperationLog;
 
-use App\Application\Common\HasClientInfo;
 use App\Application\OperationLog\Dto\In\OperationLogListInputDto;
 use App\Application\OperationLog\Dto\Out\OperationLogListResultDto;
 use App\Application\OperationLog\Dto\View\OperationLogListItemDto;
@@ -10,7 +9,6 @@ use App\Domain\OperationLog\In\OperationLogListFilter;
 use App\Domain\OperationLog\OperationLogRepositoryInterface;
 
 class OperationLogListService {
-	use HasClientInfo;
 
 	public function __construct(
 		private OperationLogRepositoryInterface $operationLogListService

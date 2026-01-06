@@ -23,6 +23,8 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 
 Route::middleware(['auth', 'checkUserAccountIsValid'])->group(function () {
 	Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+	Route::get('/dashboard/group', [DashboardController::class, 'groups'])->name('dashboard.groups');
+	Route::get('/dashboard/chat-session', [DashboardController::class, 'chatSessions'])->name('dashboard.chat_sessions');
 });
 
 Route::middleware(['auth'])->prefix('users')->name('users.')->group(function () {
@@ -50,7 +52,6 @@ Route::middleware(['auth'])->prefix('groups')->name('groups.')->group(function (
 		Route::get('/addable-members', [GroupMemberController::class, 'listAddableMembers'])->name('list_addable');
 		Route::post('/', [GroupMemberController::class, 'store'])->name('store');
 		Route::patch('/', [GroupMemberController::class, 'updateMembersRole'])->name('bulk_update_role');
-		Route::patch('/{member:display_id}', [GroupMemberController::class, 'updateMemberRole'])->name('update_role');
 		Route::delete('/{member:display_id}', [GroupMemberController::class, 'destroy'])->name('destroy');
 		Route::post('/{member:display_id}/check-lock-version', [GroupMemberController::class, 'checkLock'])->name('check.lock_version');
 	});
@@ -67,8 +68,4 @@ Route::middleware(['auth'])->prefix('audit-logs')->name('audit_logs.')->group(fu
 });
 
 //todo
-Route::get('/knowledge', function () {echo 'Knowledge/Index';})->name('knowledge.index');
 Route::get('/folders', function () {echo 'Folders/Index';})->name('folders.index');
-Route::get('/wiki', function () {echo 'Wiki/Index';})->name('wiki.index');
-Route::get('/companies', function () {echo 'Companies/Index';})->name('companies.index');
-Route::get('/audit-log', function () {echo 'AuditLog/Index';})->name('audit-log.index');

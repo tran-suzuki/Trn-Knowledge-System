@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Group, ChatSession,Message, DashboardResponse } from '@/domains/dashboard/dashboard';
+import { Group, ChatSession, Message, DashboardResponse } from '@/domains/dashboard/dashboard';
 
 interface DashboardState {
 	groups: Group[];
@@ -10,10 +10,10 @@ interface DashboardState {
 
 export const useDashboardStore = create<DashboardState>((set) => ({
 	groups: [],
-	chatSessions:[],
+	chatSessions: [],
 	message: {
 		group: null,
-		chatSessions: null
+		chatSessions: null,
 	},
 	setInitialData: (data: DashboardResponse) =>
 		set({
@@ -21,4 +21,5 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 			chatSessions: data.chatSessions,
 			message: data.message,
 		}),
+	setChatSessions: (data: ChatSession) => set({ chatSessions: data }),
 }));

@@ -9,6 +9,7 @@ import {
 	GroupMemberChangeRolesRequest,
 	CheckMemberLockVersionRequest,
 	DeleteGroupMemberRequest,
+	Member,
 } from '@/domains/groupMember/groupMemberList';
 import {
 	GroupMemberListItemDto,
@@ -21,6 +22,7 @@ import {
 	GroupMemberChangeRolesRequestDto,
 	CheckMemberLockVersionRequestDto,
 	DeleteGroupMemberRequestDto,
+	MemberDto,
 } from '@/Types/groupMember/groupMemberList';
 
 // --------------- List -------------------
@@ -97,11 +99,20 @@ export const mapAddGroupMembersRequestToDto = (domain: AddGroupMembersRequest): 
 };
 
 // ----------------- changr role
+export const mapMembersToDto = (domain: Member): MemberDto => {
+	console.log(domain);
+	return {
+		display_id: domain.displayId,
+		lock_version: domain.lockVersion,
+	};
+};
+
 export const mapGroupMemberChangeRolesRequestToDto = (
 	domain: GroupMemberChangeRolesRequest,
 ): GroupMemberChangeRolesRequestDto => {
+	const selectedMembers: MemberDto[] = domain.members.map(mapMembersToDto);
 	return {
-		member_display_ids: domain.memberDisplayIds,
+		members: selectedMembers,
 		role: domain.role,
 	};
 };

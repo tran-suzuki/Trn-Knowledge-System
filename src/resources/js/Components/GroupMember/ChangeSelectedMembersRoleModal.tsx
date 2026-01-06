@@ -20,24 +20,23 @@ const ChangeSelectedMembersRoleModal: React.FC<ChangeSelectedMembersRoleModalPro
 	const { selectedGroupDisplayId } = useGroupListStore();
 
 	const [memberRole, setMemberRole] = useState<string>('manager');
-	const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
+	const [selectedMemberDisplayIds, setselectedMemberDisplayIds] = useState<string[]>([]);
 
 	if (!open) return null;
-
-	const isAllChecked = groupMembers.length > 0 && groupMembers.length === selectedMemberIds.length;
+	const isAllChecked = groupMembers.length > 0 && groupMembers.length === selectedMemberDisplayIds.length;
 
 	const handleToggleAll = () => {
 		if (isAllChecked) {
-			setSelectedMemberIds([]);
+			setselectedMemberDisplayIds([]);
 			return;
 		}
 
 		const allDisplayId = groupMembers.map((member) => member.displayId);
-		setSelectedMemberIds(allDisplayId);
+		setselectedMemberDisplayIds(allDisplayId);
 	};
 
 	const handleCheckboxToggle = (memberDisplayId: string) => {
-		setSelectedMemberIds((prev) => {
+		setselectedMemberDisplayIds((prev) => {
 			const exists = prev.includes(memberDisplayId);
 			if (exists) {
 				return prev.filter((displayId) => displayId !== memberDisplayId);
@@ -48,9 +47,14 @@ const ChangeSelectedMembersRoleModal: React.FC<ChangeSelectedMembersRoleModalPro
 	};
 
 	const handleConfirm = async () => {
+		const selectedMembers = selectedMemberDisplayIds
+			.map((displayId) => groupMembers.find((m) => m.displayId === displayId))
+			.filter(Boolean)
+			.map((m) => ({ displayId: m!.displayId, lockVersion: m!.lockVersion }));
+
 		const changeMemberRolesRes = await groupMemberRepository.changeMembersRole(
 			selectedGroupDisplayId,
-			selectedMemberIds,
+			selectedMembers,
 			memberRole,
 		);
 		if (changeMemberRolesRes.status) {
@@ -106,7 +110,7 @@ const ChangeSelectedMembersRoleModal: React.FC<ChangeSelectedMembersRoleModalPro
 
 						<tbody className="bg-white divide-y divide-gray-200">
 							{groupMembers?.map((member) => {
-								const isChecked = selectedMemberIds.includes(member.displayId);
+								const isChecked = selectedMemberDisplayIds.includes(member.displayId);
 								return (
 									<tr key={member.displayId}>
 										<td className="px-2 py-2">

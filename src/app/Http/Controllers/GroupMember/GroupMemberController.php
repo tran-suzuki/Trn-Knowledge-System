@@ -4,21 +4,20 @@ namespace App\Http\Controllers\GroupMember;
 use App\Application\GroupMember\Dto\In\CheckLockVersionInputDto;
 use App\Application\GroupMember\Dto\In\GroupMemberDeleteInputDto;
 use App\Application\GroupMember\Dto\In\GroupMemberListAddableInputDto;
+use App\Application\GroupMember\Dto\In\GroupMemberListInputDto;
 use App\Application\GroupMember\Dto\In\GroupMembersChangeRoleInputDto;
 use App\Application\GroupMember\Dto\In\GroupMembersStoreInputDto;
 use App\Application\GroupMember\Dto\View\GroupMemberListItemDto;
-use App\Application\GroupMember\GroupMemberChangeRoleService;
 use App\Application\GroupMember\GroupMemberChangeRolesService;
 use App\Application\GroupMember\GroupMemberCheckLockVersionService;
 use App\Application\GroupMember\GroupMemberDeleteService;
 use App\Application\GroupMember\GroupMemberListAddableService;
 use App\Application\GroupMember\GroupMemberListService;
-use App\Application\GroupMember\GroupMemberStoreService;
+use App\Application\GroupMember\GroupMemberRegisterService;
 use App\Domain\Common\OptimisticException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GroupMember\GroupMemberStoreRequest;
 use App\Http\Requests\GroupMember\GroupMemberUpdateRequest;
-use App\Http\Requests\GroupMember\GroupMemberUpdateRoleRequest;
 use App\Models\MtGroup;
 use App\Models\MtUser;
 use Illuminate\Http\Request;
@@ -29,9 +28,8 @@ class GroupMemberController extends Controller {
 	public function __construct(
 		private GroupMemberListService $groupMemberListService,
 		private GroupMemberListAddableService $groupMemberListAddableService,
-		private GroupMemberStoreService $groupMemberStoreService,
+		private GroupMemberRegisterService $groupMemberRegisterService,
 		private GroupMemberChangeRolesService $groupMemberChangeRolesService,
-		private GroupMemberChangeRoleService $groupMemberChangeRoleService,
 		private GroupMemberCheckLockVersionService $groupMemberCheckLockVersionService,
 		private GroupMemberDeleteService $groupMemberDeleteService
 	) {}
@@ -40,29 +38,34 @@ class GroupMemberController extends Controller {
 		$this->authorize('view', $mtGroup);
 
 		try {
-			$resultDto = $this->groupMemberListService->handle($mtGroup);
+			$dto = new GroupMemberListInputDto(
+				groupId: (int) $mtGroup->id,
+				page: (int) $request->input('page', 1),
+				perPage: (int) $request->input('per_page', 10),
+			);
+
+			$resultDto = $this->groupMemberListService->handle($dto);
 
 			$actor = $request->user();
 
 			$items = array_map(function (GroupMemberListItemDto $item) use ($actor, $mtGroup) {
 				$canChangeRole = Gate::forUser($actor)->allows(
 					'group.change-member-role',
-					[$mtGroup, $item->id]
+					[$mtGroup, $item->fkUserId]
 				);
 
 				$canRemove = Gate::forUser($actor)->allows(
 					'group.delete-member',
-					[$mtGroup, $item->id]
+					[$mtGroup, $item->fkUserId]
 				);
 
 				return [
-					'id'           => $item->id,
-					'display_id'   => $item->displayId,
-					'name'         => $item->name,
-					'email'        => $item->email,
-					'system_role'  => $item->systemRole,
+					'display_id'   => $item->memberDisplay,
+					'name'         => $item->memberName,
+					'email'        => $item->memberEmail,
+					'system_role'  => $item->memberRole,
 					'group_role'   => $item->groupRole,
-					'groups'       => $item->groups,
+					'groups'       => $item->memberGroups,
 					'lock_version' => $item->lockVersion,
 					'permissions'  => [
 						'can_change_role' => $canChangeRole,
@@ -79,11 +82,12 @@ class GroupMemberController extends Controller {
 				'message' => $items !== [] ? null : __('groupMember.no_data'),
 			], 200);
 
-		} catch (\Throwable $th) {
+		} catch (\Throwable $e) {
 			\Log::error('[GroupMemberController][index] Throwable', [
 				'group_id'  => $mtGroup->id,
-				'exception' => $th->getMessage(),
+				'exception' => $e->getMessage(),
 			]);
+
 			return response()->json([
 				'data'    => [],
 				'status'  => true,
@@ -118,7 +122,7 @@ class GroupMemberController extends Controller {
 
 			return response()->json([
 				'data'    => [],
-				'status'  => true,
+				'status'  => false,
 				'message' => __('groupMember.get_list_failed'),
 			], 500);
 		}
@@ -131,17 +135,18 @@ class GroupMemberController extends Controller {
 		try {
 
 			$inputDto = new GroupMembersStoreInputDto(
+				fkCreatedBy: $request->user()->id,
 				groupId: $mtGroup->id,
 				memberDisplayIds: $request->input('member_display_ids'),
-				actorId: auth()->id()
 			);
 
-			$this->groupMemberStoreService->handle($inputDto);
+			$this->groupMemberRegisterService->handle(dto: $inputDto);
 
 			return response()->json([
 				'status'  => true,
 				'message' => __('groupMember.created'),
 			]);
+
 		} catch (\Throwable $e) {
 			\Log::error('[GroupMemberController][store] Throwable', [
 				'group_id'  => $mtGroup->id,
@@ -155,46 +160,17 @@ class GroupMemberController extends Controller {
 		}
 	}
 
-	public function updateMemberRole(GroupMemberUpdateRoleRequest $request, MtGroup $mtGroup, MtUser $member) {
-
-		$this->authorize('update', $mtGroup);
-		Gate::authorize('group.change-member-role', [$mtGroup, $member->id]);
-
-		try {
-			$input = new GroupMembersChangeRoleInputDto(
-				groupId: $mtGroup->id,
-				role: $request->input('role'),
-				memberId: $member->id,
-			);
-
-			$this->groupMemberChangeRoleService->handle($input);
-
-			return response()->json([
-				'status'  => true,
-				'message' => __('groupMember.updated'),
-			]);
-		} catch (\Throwable $e) {
-			\Log::error('[GroupMemberController][updateMemberRole] Throwable', [
-				'group_id'  => $mtGroup->id,
-				'exception' => $e->getMessage(),
-			]);
-			dd($e->getMessage());
-			return response()->json([
-				'status'  => false,
-				'message' => ___('groupMember.update_failed'),
-			], 500);
-		}
-	}
-
 	public function updateMembersRole(GroupMemberUpdateRequest $request, MtGroup $mtGroup) {
 		$this->authorize('update', $mtGroup);
 		Gate::authorize('group.change-member', [$mtGroup]);
 
 		try {
+
 			$input = new GroupMembersChangeRoleInputDto(
+				fkUserId: (int) $request->user()->id,
 				groupId: $mtGroup->id,
 				role: $request->input('role'),
-				memberDisplayIds: $request->input('member_display_ids'),
+				members: $request->input('members'),
 			);
 
 			$this->groupMemberChangeRolesService->handle($input);
@@ -203,6 +179,17 @@ class GroupMemberController extends Controller {
 				'status'  => true,
 				'message' => __('groupMember.updated'),
 			]);
+		} catch (OptimisticException $e) {
+			\Log::error('[GroupMemberController][destroy] OptimisticException', [
+				'group_id'  => $mtGroup->id,
+				'exception' => $e->getMessage(),
+			]);
+
+			return response()->json([
+				'status'  => false,
+				'message' => $e->getMessage(),
+			]);
+
 		} catch (\Throwable $e) {
 			\Log::error('[GroupMemberController][updateMembersRole] Throwable', [
 				'group_id'  => $mtGroup->id,
@@ -211,7 +198,7 @@ class GroupMemberController extends Controller {
 
 			return response()->json([
 				'status'  => false,
-				'message' => ___('groupMember.update_failed'),
+				'message' => _('groupMember.update_failed'),
 			], 500);
 		}
 	}
@@ -223,6 +210,7 @@ class GroupMemberController extends Controller {
 
 		try {
 			$input = new GroupMemberDeleteInputDto(
+				fkUserId: (int) $request->user()->id,
 				groupId: (int) $mtGroup->id,
 				memberId: (int) $member->id,
 				lockVersion: (int) $request->input('lock_version')

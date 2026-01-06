@@ -4,6 +4,8 @@ namespace App\Application\GroupMember\Dto\In;
 
 final class GroupMemberListInputDto {
 	public function __construct(
-		public string $groupDisplayId,
+		public readonly int $groupId,
+		public readonly int $page,
+		public readonly int $perPage,
 	) {}
 }

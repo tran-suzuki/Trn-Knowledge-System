@@ -2,10 +2,10 @@
 
 namespace App\Domain\GroupMember\In;
 
-class GroupMembersFindItemInput {
+final class GroupMemberListInput {
 	public function __construct(
 		public readonly int $groupId,
-		public readonly ?int $memberId = 0,
-		public readonly ?array $memberIds = [],
+		public readonly int $page,
+		public readonly int $perPage,
 	) {}
 }

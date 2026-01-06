@@ -188,16 +188,15 @@ class UserRepository implements UserRepositoryInterface {
 			->first();
 
 		return new User(
-			id: $model->id,
-			fkCompanyId: $model->fk_company_id,
+			id: (int) $model->id,
+			displayId: $model->display_id,
+			fkCompanyId: (int) $model->fk_company_id,
 			name: $model->name,
+			nameKana: $model->name_kana,
 			email: $model->email,
 			role: UserRole::from($model->role),
-			status: $model->status,
-			lockVersion: $model->lock_version,
-			groups: [],
-			displayId: $model->display_id,
-			passwordHash: $model->password,
+			status: Status::from($model->status),
+			lockVersion: (int) $model->lock_version,
 			newEmail: $model->new_email,
 		);
 	}
@@ -233,7 +232,7 @@ class UserRepository implements UserRepositoryInterface {
 		return $ids[$displayId];
 	}
 
-	public function listOutsideGroupByDisplayId(string $groupId): UserListResult {
+	public function listAddableMembers(string $groupId): UserListResult {
 		$models = MtUser::query()
 			->whereNull('mt_users.deleted_at')
 			->with([
@@ -258,25 +257,21 @@ class UserRepository implements UserRepositoryInterface {
 				))
 				->all();
 
-			return User::list(
-				id: (int) $model->id,
-				fkCompanyId: (int) $model->fk_company_id,
-				name: (string) $model->name,
-				email: (string) $model->email,
+			return new UserListItem(
+				id: $model->id,
+				displayId: $model->display_id,
+				fkCompanyId: $model->fk_company_id,
+				name: $model->name,
+				email: $model->email,
 				role: UserRole::from($model->role),
-				status: $model->status,
-				lockVersion: (int) ($model->lock_version ?? 0),
+				status: Status::from($model->status),
+				lockVersion: $model->lock_version ?? 1,
 				groups: $groups,
-				displayId: (string) $model->display_id
 			);
 		})->all();
 
 		return new UserListResult(
-			items: $items,
-			currentPage: 10,
-			perPage: 1,
-			total: 1,
-			lastPage: 1,
+			items: $items
 		);
 	}
 

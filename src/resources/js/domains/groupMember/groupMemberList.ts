@@ -1,6 +1,11 @@
 import type { UserRole } from '@/domains/common/role';
 import type { Status } from '@/domains/common/status';
 
+export type Member = {
+	displayId: string;
+	lockVersion: number;
+};
+
 export interface GroupMemberPermission {
 	canChangeRole: boolean;
 	canRemove: boolean;
@@ -48,7 +53,7 @@ export type AddGroupMembersRequest = {
 
 // ----------change role-------
 export type GroupMemberChangeRolesRequest = {
-	memberDisplayIds: string[];
+	members: Member[];
 	role: string;
 };
 

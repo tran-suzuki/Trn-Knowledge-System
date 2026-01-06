@@ -4,32 +4,33 @@ import { jaValidation as msg } from '@/lang/ja';
 import { useGroupListStore } from '@/stores/group/groupListStore';
 import { useGroupMemberListStore } from '@/stores/groupMember/groupListStore';
 import { groupMemberRepository } from '@/infrastructure/groupMember/groupMemberRepository';
+import { GroupMemberListItem } from '@/domains/groupMember/groupMemberList';
 
 interface ChangeSingleMemberRoleModalProps {
-	displayId: string;
+	member: GroupMemberListItem;
 	open: boolean;
 	onClose: () => void;
 	onSuccess: () => void;
 }
 
 const ChangeSingleMemberRoleModal: React.FC<ChangeSingleMemberRoleModalProps> = ({
-	displayId,
+	member,
 	open,
 	onClose,
 	onSuccess,
 }) => {
 	const { groupMembers } = useGroupMemberListStore();
 	const { selectedGroupDisplayId } = useGroupListStore();
-	const targetMember = groupMembers?.find((member) => member.displayId === displayId);
+	const targetMember = groupMembers?.find((mem) => mem.displayId === member.displayId);
 
 	const [selectedRole, setSelectedRole] = useState<string>(targetMember?.groupRole ?? 'guest');
 
 	if (!open) return null;
 
 	const handleConfirm = async () => {
-		const changeMemberRolesRes = await groupMemberRepository.changeMemberRole(
+		const changeMemberRolesRes = await groupMemberRepository.changeMembersRole(
 			selectedGroupDisplayId,
-			displayId,
+			[{ displayId: member.displayId, lockVersion: Number(member.lockVersion) }],
 			selectedRole,
 		);
 		if (changeMemberRolesRes.status) {

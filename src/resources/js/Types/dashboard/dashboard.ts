@@ -22,3 +22,14 @@ export interface DashboardResponseDto {
 	chat_sessions: ChatSessionDto[];
 	message: MessageDto;
 }
+
+export interface DashboardGroupResponseDto {
+	groups: GroupDto[];
+	has_more: boolean;
+	next_cursor: number;
+}
+
+export interface DashboardChatSessionResponseDto {
+	chat_sessions: ChatSessionDto[];
+	message: string | null;
+}

@@ -163,7 +163,7 @@ class UserController extends Controller {
 				'user_id' => $user->id,
 				'error'   => $e->getMessage(),
 			]);
-			dd($e->getMessage());
+
 			return response()->json([
 				'status'  => false,
 				'message' => __('user.no_exist'),
@@ -242,7 +242,7 @@ class UserController extends Controller {
 				'user_id'   => $user->id,
 				'exception' => $e->getMessage(),
 			]);
-			dd($e->getMessage());
+
 			return back()->withErrors([
 				'delete' => __('user.delete_failed'),
 			]);
@@ -252,7 +252,7 @@ class UserController extends Controller {
 				'user_id'   => $user->id,
 				'exception' => $e->getMessage(),
 			]);
-			dd($e->getMessage());
+
 			return back()->withErrors([
 				'delete' => __('user.delete_failed'),
 			]);

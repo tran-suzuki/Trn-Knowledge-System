@@ -4,14 +4,15 @@ namespace App\Application\GroupMember\Dto\View;
 
 final class GroupMemberListItemDto {
 	public function __construct(
-		public string $id,
-		public string $displayId,
-		public string $name,
-		public string $email,
-		public string $systemRole,
-		public string $groupRole,
-		public array $groups = [],
-		public ?string $lockVersion,
+		public readonly int $fkUserId,
+		public readonly string $memberDisplay,
+		public readonly string $memberName,
+		public readonly string $memberEmail,
+		public readonly string $memberRole,
+		public readonly array $memberGroups,
+		public readonly string $groupDisplay,
+		public readonly string $groupRole,
+		public readonly string $lockVersion,
 	) {}
 
 }
