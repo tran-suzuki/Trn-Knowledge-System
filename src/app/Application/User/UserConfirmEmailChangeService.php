@@ -2,6 +2,7 @@
 
 namespace App\Application\User;
 
+use App\Domain\User\In\UserUpdateInput;
 use App\Domain\User\UserRepositoryInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -20,11 +21,24 @@ class UserConfirmEmailChangeService {
 				throw new RuntimeException(__('user.invalid_email_change_token'));
 			}
 
-			$user->email              = $user->newEmail;
-			$user->newEmail           = null;
-			$user->email_change_token = null;
-			$user->email_verified_at  = Carbon::now();
-			$this->userRepository->updateEmailChange($user);
+			$userDomainInput = new UserUpdateInput(
+				id: $user->id,
+				displayId: $user->displayId,
+				fkUpdatedId: $user->id,
+				fkCompanyId: $user->fkCompanyId,
+				name: $user->name,
+				nameKana: $user->nameKana,
+				email: $user->newEmail,
+				role: $user->role->value(),
+				status: $user->status->value(),
+				lockVersion: $user->lockVersion,
+				newEmail: null,
+				emailChangeToken: null,
+				emailVerifiedAt: Carbon::now()
+			);
+
+			$domainUser = $user->update($userDomainInput);
+			$this->userRepository->updateEmailChange($domainUser);
 		});
 	}
 }

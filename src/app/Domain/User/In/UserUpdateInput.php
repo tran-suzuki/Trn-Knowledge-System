@@ -14,7 +14,9 @@ class UserUpdateInput {
 		public readonly string $role,
 		public readonly string $status,
 		public readonly int $lockVersion,
-		public readonly ?string $password,
-		public readonly ?string $newEmail,
+		public readonly ?string $password = null,
+		public readonly ?string $newEmail = null,
+		public readonly ?string $emailChangeToken = null,
+		public readonly ?string $emailVerifiedAt = null,
 	) {}
 }

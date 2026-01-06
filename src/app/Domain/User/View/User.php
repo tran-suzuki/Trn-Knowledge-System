@@ -30,6 +30,8 @@ final class User {
 		public ?string $twoFactorSecret = null,
 		public ?array $twoFactorRecoveryCodes = null,
 		public  ? \DateTimeImmutable $deletedAt = null,
+		public ?string $emailChangeToken = null,
+		public ?string $emailVerifiedAt = null,
 	) {}
 
 	public static function create(UserStoreInput $input) : self {
@@ -70,6 +72,8 @@ final class User {
 			password: $input->password,
 			newEmail: $input->newEmail,
 			fkUpdatedId: $input->fkUpdatedId,
+			emailChangeToken: $input->emailChangeToken,
+			emailVerifiedAt: $input->emailVerifiedAt,
 		);
 	}
 
