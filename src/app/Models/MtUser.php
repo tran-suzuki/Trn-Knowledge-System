@@ -56,9 +56,6 @@ class MtUser extends Authenticatable {
 		return $query
 			->whereNull('mt_users.deleted_at')
 			->where('mt_users.status', 'active')
-			->whereHas('company', function ($q) {
-				$q->whereNull('mt_companies.deleted_at');
-			})
 			->whereHas('groups', function ($q) {
 				$q->whereNull('mt_groups.deleted_at')
 					->where('mt_groups.status', 'active');
@@ -87,7 +84,7 @@ class MtUser extends Authenticatable {
 
 	public static function findForLogin(string $email): ?self {
 		return static::query()
-			->with(['company', 'groups' => function ($q) {
+			->with(['groups' => function ($q) {
 				$q->whereNull('mt_groups.deleted_at')
 					->where('mt_groups.status', 'active');
 			}])

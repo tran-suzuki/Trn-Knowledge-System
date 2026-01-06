@@ -110,6 +110,7 @@ class GroupMemberChangeRolesService {
 					'role'     => $roles,
 				];
 
+				return true;
 			});
 
 			if ($txResult === null) {

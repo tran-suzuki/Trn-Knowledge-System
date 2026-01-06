@@ -40,7 +40,7 @@ const OperationLogTable: React.FC = () => {
 							<tr key={log.displayId} className="hover:bg-gray-50">
 								<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{log.createDate}</td>
 								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-									{log.name} <span className="text-gray-500">({log.email})</span>
+									{log.name} {log.email && ( <span className="text-gray-500"> ({log.email})</span> )}
 								</td>
 								<td className={`px-6 py-4 whitespace-nowrap text-sm  font-medium`}>{log.action}</td>
 								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{log.targetId}</td>

@@ -13,7 +13,6 @@ use App\Models\DtOperationLog;
 class OperationLogRepository implements OperationLogRepositoryInterface {
 
 	public function search(OperationLogListFilter $filter): OperationLogListResult {
-
 		$query = DtOperationLog::query();
 		if ($filter->startDate && $filter->endDate) {
 			$query->whereBetween('created_at', [
@@ -57,8 +56,8 @@ class OperationLogRepository implements OperationLogRepositoryInterface {
 					ipAddress: $model->ip_address,
 					targetType: $model->target_type ?? "",
 					targetId: $model->target_id ?? "",
-					fkUserName: $model->user?->name,
-					fkUserEmail: $model->user?->email
+					fkUserName: $model->user?->name ?? "",
+					fkUserEmail: $model->user?->email ?? "",
 				);
 			})
 			->all();
@@ -87,8 +86,8 @@ class OperationLogRepository implements OperationLogRepositoryInterface {
 			ipAddress: $model->ip_address,
 			targetType: $model->target_type ?? "",
 			targetId: $model->target_id ?? "",
-			fkUserName: $model->user?->name,
-			fkUserEmail: $model->user?->email
+			fkUserName: $model->user?->name ?? "",
+			fkUserEmail: $model->user?->email ?? "",
 		);
 	}
 

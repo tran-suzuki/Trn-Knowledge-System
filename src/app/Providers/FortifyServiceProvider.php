@@ -6,6 +6,9 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Application\OperationLog\Dto\In\OperationLogStoreInputDto;
+use App\Application\OperationLog\OperationLogRegisterService;
+use App\Domain\OperationLog\View\Action;
 use App\Http\Requests\Auth\LoginRequest as AppLoginRequest;
 use App\Models\MtUser;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -33,7 +36,7 @@ class FortifyServiceProvider extends ServiceProvider {
 	/**
 	 * Bootstrap any application services.
 	 */
-	public function boot(): void {
+	public function boot(OperationLogRegisterService $operationLogRegisterService): void {
 		// Login画面
 		Fortify::loginView(function (Request $request): mixed {
 
@@ -43,11 +46,24 @@ class FortifyServiceProvider extends ServiceProvider {
 			]);
 		});
 
-		Fortify::authenticateUsing(function (Request $request) {
+		Fortify::authenticateUsing(function (Request $request) use ($operationLogRegisterService) {
 
 			$user = MtUser::findForLogin($request->email);
 
 			if (!$user || !Hash::check($request->password, $user->password)) {
+
+				$operationLogRegisterService->handle(new OperationLogStoreInputDto(
+					action: Action::LOGIN_FAIL,
+					targetType: 'mt_users',
+					details: [
+						'result'     => 'fail',
+						'user_input' => [
+							'email'    => $request->email,
+							'password' => $request->password,
+						],
+					],
+				));
+
 				throw ValidationException::withMessages([
 					'email' => ['メールアドレスとパスワードを正しく入力してください。'],
 				]);
@@ -58,6 +74,21 @@ class FortifyServiceProvider extends ServiceProvider {
 
 		$this->app->instance(LoginResponse::class, new class implements LoginResponse {
 			public function toResponse($request) {
+
+				$logService = app(\App\Application\OperationLog\OperationLogRegisterService::class);
+				$user       = $request->user();
+				$logService->handle(new \App\Application\OperationLog\Dto\In\OperationLogStoreInputDto(
+					fkUserId: $user->id,
+					action: \App\Domain\OperationLog\View\Action::LOGIN_SUCCESS,
+					targetType: 'mt_users',
+					targetId: (int) $user->id,
+					details: [
+						'result'     => 'success',
+						'ip'         => $request->ip(),
+						'user_agent' => (string) $request->userAgent(),
+					],
+				));
+
 				return redirect()->intended(route('dashboard'));
 			}
 		});

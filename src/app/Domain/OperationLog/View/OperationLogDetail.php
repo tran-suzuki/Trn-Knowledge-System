@@ -13,7 +13,7 @@ final class OperationLogDetail {
 		public readonly array $detail,
 		public readonly string $targetType,
 		public readonly string $targetId,
-		public readonly string $fkUserName,
-		public readonly string $fkUserEmail,
+		public readonly ?string $fkUserName = null,
+		public readonly ?string $fkUserEmail = null,
 	) {}
 }
