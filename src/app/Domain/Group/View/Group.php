@@ -45,25 +45,4 @@ final class Group {
 		$clone->lockVersion = $input->lockVersion + 1;
 		return $clone;
 	}
-
-	// public static function dashboardGroupItem(
-	// 	string $displayId,
-	// 	string $name,
-	// 	int $userCount,
-	// 	int $id,
-	// 	?string $description = null,
-	// 	?string $lockVersion = null,
-	// 	?int $documentCount = 0
-	// ): self {
-	// 	return new self(
-	// 		displayId: $displayId,
-	// 		name: $name,
-	// 		userCount: $userCount,
-	// 		id: $id,
-	// 		description: $description,
-	// 		lockVersion: $lockVersion,
-	// 		documentCount: $documentCount
-	// 	);
-	// }
-
 }

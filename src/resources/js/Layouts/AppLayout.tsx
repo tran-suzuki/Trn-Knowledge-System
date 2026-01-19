@@ -5,10 +5,11 @@ import { Toaster } from 'react-hot-toast';
 
 interface AppLayoutProps {
 	title?: string;
+	isPadding?: boolean;
 	children: React.ReactNode;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ title, children }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ title, children, isPadding = true }) => {
 	return (
 		<div className="min-h-screen flex bg-gray-50">
 			<Toaster position="top-right" />
@@ -16,7 +17,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ title, children }) => {
 			<div className="flex flex-col flex-1">
 				{title && <Header title={title} />}
 
-				<main className="flex-1 p-6 bg-gray-50">{children}</main>
+				<main className={`flex-1 bg-gray-50 ${isPadding ? 'p-6' : ''}`}>{children}</main>
 			</div>
 		</div>
 	);

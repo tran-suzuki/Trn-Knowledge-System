@@ -19,6 +19,8 @@ interface GroupRepositoryInterface {
 
 	public function getById(string $groupId): Group;
 
+	public function getByDisplayId(string $displayId): Group;
+
 	public function delete(Group $group): void;
 
 	public function listGroupsForDashboard(GroupListForDashboardInput $input): GroupListForDashboardResult;

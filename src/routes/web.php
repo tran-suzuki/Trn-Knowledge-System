@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Chat\ChatController;
 use App\Http\Controllers\Chat\ChatSessionController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Document\DocumentController;
 use App\Http\Controllers\GroupMember\GroupMemberController;
 use App\Http\Controllers\Group\GroupController;
 use App\Http\Controllers\OperationLog\OperationLogController;
@@ -65,6 +66,17 @@ Route::middleware(['auth'])->prefix('chats')->name('chats.')->group(function () 
 Route::middleware(['auth'])->prefix('audit-logs')->name('audit_logs.')->group(function () {
 	Route::get('/', [OperationLogController::class, 'index'])->name('index');
 	Route::get('/{dtOperationLog:display_id}', [OperationLogController::class, 'detail'])->name('detail');
+});
+
+Route::middleware(['auth'])->prefix('documents')->name('documents.')->group(function () {
+	Route::get('/', [DocumentController::class, 'index'])->name('index');
+	Route::get('/search', [DocumentController::class, 'search'])->name('search');
+	Route::get('/tree', [DocumentController::class, 'tree'])->name('tree');
+	Route::post('/copy', [DocumentController::class, 'copy'])->name('copy');
+	Route::post('/store', [DocumentController::class, 'store'])->name('store');
+	Route::delete('/', [DocumentController::class, 'destroy'])->name('destroy');
+	Route::post('/', [DocumentController::class, 'checkExistingFile'])->name('check.existing_file');
+	Route::post('/{dtDocuments:display_id}/check-lock-version', [DocumentController::class, 'checkLock'])->name('check.lock_version');
 });
 
 //todo

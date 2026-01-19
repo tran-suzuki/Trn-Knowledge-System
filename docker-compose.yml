@@ -5,6 +5,7 @@ services:
       dockerfile: ./docker/php/Dockerfile
     volumes:
       - ./src:/var/www
+      - ./src/storage/app:/var/www/storage/app
       - vendor-data:/var/www/vendor
     networks:
       - app-network

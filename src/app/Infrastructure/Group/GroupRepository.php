@@ -122,6 +122,31 @@ class GroupRepository implements GroupRepositoryInterface {
 		);
 	}
 
+	public function getByDisplayId(string $displayId): Group {
+		$model = MtGroup::query()
+			->withCount([
+				'groupUsers as user_count' => function ($q) {
+					$q->whereNull('dt_group_user.deleted_at');
+				},
+			])
+			->whereNull('mt_groups.deleted_at')
+			->where('mt_groups.status', GroupStatus::ACTIVE)
+			->where('mt_groups.display_id', $displayId)
+			->firstOrFail();
+
+		return new Group(
+			id: (int) $model->id,
+			fkUserId: (int) $model->fk_user_id,
+			displayId: $model->display_id,
+			fkCompanyId: (int) $model->fk_company_id,
+			name: $model->name,
+			status: Status::from($model->status),
+			lockVersion: (int) $model->lock_version,
+			description: $model->description,
+			memberCount: (int) $model->user_count,
+		);
+	}
+
 	public function delete(Group $group): void {
 		MtGroup::query()
 			->where('id', $group->id)

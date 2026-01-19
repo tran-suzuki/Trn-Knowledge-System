@@ -11,6 +11,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
 	{ icon: Home, label: 'Dashboard', routeName: 'dashboard' },
+	{ icon: Folder, label: 'フォルダ一覧', routeName: 'documents.index' },
 	{ icon: UserSquare, label: 'グループ管理', routeName: 'groups.index' },
 	{ icon: Users, label: 'ユーザー管理', routeName: 'users.index' },
 	{ icon: FileText, label: '監査ログ', routeName: 'audit_logs.index' },
