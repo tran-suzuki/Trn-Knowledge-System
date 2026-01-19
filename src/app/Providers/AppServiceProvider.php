@@ -38,6 +38,10 @@ class AppServiceProvider extends ServiceProvider {
 			\App\Domain\OperationLog\OperationLogRepositoryInterface::class,
 			\App\Infrastructure\OperationLog\OperationLogRepository::class
 		);
+		$this->app->bind(
+			\App\Domain\Document\DocumentRepositoryInterface::class,
+			\App\Infrastructure\Document\DocumentRepository::class
+		);
 	}
 
 	public function boot(): void {

@@ -7,11 +7,16 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "google/cloud-speech": "^2.3",
+        "google/cloud-storage": "^1.49",
+        "google/cloud-videointelligence": "^2.1",
+        "google/cloud-vision": "^2.1",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/fortify": "^1.32",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
+        "league/flysystem-google-cloud-storage": "^3.0",
         "tightenco/ziggy": "^2.6"
     },
     "require-dev": {

@@ -234,7 +234,7 @@ class GroupController extends Controller {
 			return response()->json([
 				'status'  => false,
 				'message' => __('group.check_lock_version'),
-			], 200);
+			], 500);
 		}
 	}
 }

@@ -28,6 +28,8 @@ cp src/.env.example src/.env
 
 Open src/.env and update the database configuration:
 
+> 2025/01/19: update
+
 ```
 DB_CONNECTION=mysql
 DB_HOST=db
@@ -35,7 +37,22 @@ DB_PORT=3306
 DB_DATABASE=trd_knowledge_system_db
 DB_USERNAME=user
 DB_PASSWORD=password
+
+
+FILESYSTEM_DISK=gcs
+GOOGLE_CLOUD_PROJECT_ID=hybrid-text-477900-i6
+GOOGLE_CLOUD_STORAGE_BUCKET=ai_knowledge_system
+GOOGLE_CLOUD_KEY_FILE=/var/www/storage/app/google-cloud/google-cloud-key.json
+VERTEX_AI_DATA_STORE_ID=ai-knowledge-system-data-store_1768793275314
+VERTEX_AI_LOCATION=global
+
 ```
+
+> 2025/01/19: add
+
+# 3.1 Download File Google Cloud
+
+Download file "google-cloud-key.json" from path "https://drive.google.com/drive/folders/1j-jvHL6zXcezWhgZ4e12JixE7Wm57Mf6?role=writer" to the directory src\storage\app\google-cloud
 
 ---
 
@@ -136,7 +153,15 @@ storage/logs/laravel.log
 
 ---
 
-# 8. Run the Application
+> 2025/01/19:add
+
+# 8. Queue Worker Setup for GCS to VerterAI Synchronization
+
+```bash
+   docker compose exec app php artisan queue:work --verbose
+```
+
+# 9. Run the Application
 
 Backend (Laravel + Nginx):
 
@@ -153,7 +178,7 @@ password: password
 
 > note: the password for all login accounts is `password`
 
-# 9. Commands
+# 10. Commands
 
 Stop all Docker containers
 

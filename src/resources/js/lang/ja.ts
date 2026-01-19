@@ -77,4 +77,15 @@ export const jaValidation = {
 		updateFailed: '更新に失敗しました。',
 		checkLockVersion: '他のユーザーによって更新されました。再度、選択してください。',
 	},
+
+	document: {
+		noData: '対象のデータが存在しません。',
+		uploadFiled: 'ファイル情報を登録しました。',
+		uploadFileFailed: '登録に失敗しました。',
+		copied: 'ファイル情報をコピーしました。',
+		copyFailed: 'コピーに失敗しました。',
+		deleted: 'ファイル情報を削除しました。',
+		deleteFailed: '削除に失敗しました。',
+		checkLockVersion: '他のユーザーによって更新されました。再度、選択してください。',
+	},
 };

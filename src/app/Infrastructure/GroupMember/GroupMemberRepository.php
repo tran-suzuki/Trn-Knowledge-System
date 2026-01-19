@@ -6,9 +6,7 @@ use App\Domain\GroupMember\GroupMemberRepositoryInterface;
 use App\Domain\GroupMember\In\GroupMemberChangeRolesInputs;
 use App\Domain\GroupMember\In\GroupMemberDeleteByGroupIdInput;
 use App\Domain\GroupMember\In\GroupMemberListInput;
-use App\Domain\GroupMember\In\GroupMemberSearchInput;
 use App\Domain\GroupMember\In\GroupMembersFindItemInput;
-use App\Domain\GroupMember\Out\GroupMemberList;
 use App\Domain\GroupMember\Out\GroupMemberListResult;
 use App\Domain\GroupMember\View\GroupMember;
 use App\Domain\GroupMember\View\GroupMemberListItem;
@@ -54,27 +52,6 @@ final class GroupMemberRepository implements GroupMemberRepositoryInterface {
 		return new GroupMemberListResult(items: $items);
 	}
 
-	public function searchDB(GroupMemberSearchInput $input): GroupMemberList {
-
-		$query = DtGroupUser::query()
-			->whereNull('dt_group_user.deleted_at')
-			->whereHas('group', function ($q) {
-				$q->whereNull('mt_groups.deleted_at');
-			})
-			->whereHas('user', function ($q) {
-				$q->whereNull('mt_users.deleted_at');
-			});
-
-		if ($input->groupIds !== []) {
-			$query->whereIn('dt_group_user.fk_group_id', $input->groupIds);
-		}
-		$rows     = $query->get(['fk_group_id', 'fk_user_id']);
-		$groupIds = $rows->pluck('fk_group_id')->unique()->values()->all();
-		$userIds  = $rows->pluck('fk_user_id')->unique()->values()->all();
-
-		return new GroupMemberList($groupIds, $userIds);
-	}
-
 	public function findByGroupIdWithUserId(GroupMembersFindItemInput $input): GroupMember {
 		$model = DtGroupUser::query()
 			->where('fk_group_id', $input->groupId)
@@ -107,6 +84,25 @@ final class GroupMemberRepository implements GroupMemberRepositoryInterface {
 			lockVersion: (int) $model->lock_version,
 			id: (int) $model->id,
 		))->all();
+	}
+
+	public function findByUserId(int $userId): array {
+		$rows = DtGroupUser::query()
+			->where('fk_user_id', $userId)
+			->whereNull('dt_group_user.deleted_at')
+			->with([
+				'group' => function ($q) {
+					$q->whereNull('mt_groups.deleted_at');
+				},
+			])
+			->get();
+
+		return $rows
+			->filter(fn($model) => $model->group !== null)
+			->mapWithKeys(fn($model) => [
+				(string) $model->group->display_id => (string) $model->group->name,
+			])
+			->all();
 	}
 
 	public function create(GroupMember $groupMember): void {

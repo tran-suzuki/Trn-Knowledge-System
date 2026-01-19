@@ -7,7 +7,6 @@ import { DashboardResponseDto } from '@/Types/dashboard/dashboard';
 type PageProps = DashboardResponseDto;
 
 const Dashboard: React.FC<PageProps> = (props) => {
-
 	return (
 		<AppLayout title="Dashboard">
 			<DashboardFeature response={props} />

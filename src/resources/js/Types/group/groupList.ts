@@ -28,7 +28,7 @@ export interface GroupListResponseDto {
 
 export interface GroupListQueryDto {
 	keyword: string | null;
-	group_scope: GroupScope;
+	group_scope: boolean;
 	page: number;
 	per_page: number;
 }

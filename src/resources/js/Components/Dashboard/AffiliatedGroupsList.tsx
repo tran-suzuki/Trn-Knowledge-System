@@ -192,13 +192,6 @@ const AffiliatedGroupsList: React.FC = () => {
 
 				{/* sentinel */}
 				<div ref={sentinelRef} style={{ height: 1 }} />
-
-				{/* {initLoaded && !error && hasMore && !isScrollableReady && (
-          <div className="p-3 text-xs text-gray-400">スクロールを発生させるために自動でデータを補充しています。</div>
-        )}
-        {initLoaded && !error && !hasMore && (
-          <div className="p-3 text-xs text-gray-400">表示するデータがありません。</div>
-        )} */}
 			</div>
 		</div>
 	);

@@ -20,7 +20,6 @@ class DtChatSessionsSeeder extends Seeder {
 			->select('id', 'fk_company_id')
 			->get();
 
-		$display = 1;
 
 		foreach ($groups as $group) {
 			$user = $users->firstWhere('fk_company_id', $group->fk_company_id);
@@ -29,7 +28,7 @@ class DtChatSessionsSeeder extends Seeder {
 			}
 
 			DB::table('dt_chat_sessions')->insert([
-				'display_id'    => str_pad((string) $display++, 8, '0', STR_PAD_LEFT),
+				'display_id'    => $this->generateDisplayId(),
 				'title'         => $group->name . '：最近の相談',
 				'fk_user_id'    => $user->id,
 				'fk_company_id' => $group->fk_company_id,
@@ -40,6 +39,14 @@ class DtChatSessionsSeeder extends Seeder {
 				'created_at'    => $now,
 				'updated_at'    => $now,
 			]);
+
 		}
 	}
+
+	private function generateDisplayId(): string
+	{
+		$number = random_int(1, 99999999);
+		return str_pad((string) $number, 8, '0', STR_PAD_LEFT);
+	}
+
 }

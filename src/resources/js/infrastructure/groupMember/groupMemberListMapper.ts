@@ -100,7 +100,6 @@ export const mapAddGroupMembersRequestToDto = (domain: AddGroupMembersRequest): 
 
 // ----------------- changr role
 export const mapMembersToDto = (domain: Member): MemberDto => {
-	console.log(domain);
 	return {
 		display_id: domain.displayId,
 		lock_version: domain.lockVersion,

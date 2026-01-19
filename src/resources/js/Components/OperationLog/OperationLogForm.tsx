@@ -5,7 +5,7 @@ import { operationLogRepository } from '@/infrastructure/operationLog/operationL
 
 const OperationLogForm: React.FC = () => {
 	const { value } = useOperationLogFormStore();
-	console.log(value);
+
 	const handleCancel = () => {
 		operationLogRepository.goToList();
 	};
