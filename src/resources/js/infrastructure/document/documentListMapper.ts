@@ -9,6 +9,8 @@ import type {
 	DocumentGroupListResponseDto,
 	DeleteDocumentRequestDto,
 	CheckLockVersionRequestDto,
+	CopyConflictItemDto,
+	ConflictItemDto,
 } from '@/Types/document/documentsList';
 import type {
 	DocumentListFilter,
@@ -21,6 +23,9 @@ import type {
 	DeleteDocumentRequest,
 	DocumentListItem,
 	CheckLockVersionRequest,
+	CopyConflictItem,
+	ConflictItem,
+	ConflictAction,
 } from '@/domains/document/documentList';
 
 //================
@@ -61,6 +66,7 @@ export const mapDocumentFolderCopyDomainToDto = (domain: DocumentFolderCopy): Do
 		lock_version: domain.lockVersion,
 		target_folder_display_id: domain.targetFolderDisplayId,
 		target_group_display_id: domain.targetGroupDisplayId,
+		document_overwrite_display_id: domain.documentOverwriteDisplayId,
 	};
 };
 
@@ -136,4 +142,33 @@ export const mapCheckLockVersionRequestToDto = (domain: CheckLockVersionRequest)
 	return {
 		lock_version: domain.lockVersion,
 	};
+};
+
+// ========== Copy Conflict ==========
+export const mapCopyConflictItemDtoToDomain = (dto: CopyConflictItemDto): CopyConflictItem => {
+	return {
+		index: dto.index,
+		fileName: dto.file_name,
+		displayId: dto.display_id,
+	};
+};
+
+export const mapCopyConflictItemDtoArrayToDomain = (dtos: CopyConflictItemDto[]): CopyConflictItem[] => {
+	return dtos.map(mapCopyConflictItemDtoToDomain);
+};
+
+// ========== Conflict Item ==========
+export const mapConflictItemDtoToDomain = (dto: ConflictItemDto): ConflictItem => {
+	return {
+		index: dto.index,
+		displayPath: dto.display_path,
+		fileName: dto.file_name,
+		existingFileId: dto.existing_file_id,
+		fkParentId: dto.fk_parent_id,
+		action: 'skip' as ConflictAction,
+	};
+};
+
+export const mapConflictItemDtoArrayToDomain = (dtos: ConflictItemDto[]): ConflictItem[] => {
+	return dtos.map(mapConflictItemDtoToDomain);
 };

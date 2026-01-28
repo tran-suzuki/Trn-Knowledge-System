@@ -61,7 +61,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ onGetGroup }) => {
 				});
 
 				if (!res?.status) {
-					toast.error('Lỗi');
+					toast.error(msg.document.noData);
 					return;
 				}
 
@@ -162,6 +162,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ onGetGroup }) => {
 		try {
 			const isCheckVersionLock = await handleCheckLockVersion(document);
 			if (!isCheckVersionLock) {
+				setLoading(false);
 				return;
 			}
 
@@ -184,7 +185,6 @@ const DocumentList: React.FC<DocumentListProps> = ({ onGetGroup }) => {
 				return;
 			}
 
-			// MAIN: reload bằng 1 version duy nhất
 			lastRequestedCursorRef.current = null;
 			setDocuments([]);
 			setNextCursor(null);
@@ -194,6 +194,8 @@ const DocumentList: React.FC<DocumentListProps> = ({ onGetGroup }) => {
 			toast.success(msg.document.deleted);
 		} catch {
 			toast.error(msg.document.deleteFailed);
+		} finally {
+			setLoading(false);
 		}
 	};
 

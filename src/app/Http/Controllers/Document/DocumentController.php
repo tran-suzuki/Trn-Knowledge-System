@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Document;
 
 use App\Application\Document\DocumentCheckExistFileService;
 use App\Application\Document\DocumentCheckLockService;
+use App\Application\Document\DocumentFolderCopyConflictService;
 use App\Application\Document\DocumentDeleteService;
 use App\Application\Document\DocumentFolderCopyService;
 use App\Application\Document\DocumentGroupTreeService;
@@ -34,7 +35,8 @@ class DocumentController extends Controller {
 		private DocumentFolderCopyService $documentFolderCopyService,
 		private DocumentStoreService $documentStoreService,
 		private DocumentCheckExistFileService $documentCheckExistFileService,
-		private DocumentCheckLockService $documentCheckLockService
+		private DocumentCheckLockService $documentCheckLockService,
+		private DocumentFolderCopyConflictService $documentFolderCopyConflictService
 
 	) {
 	}
@@ -121,6 +123,7 @@ class DocumentController extends Controller {
 				sourceFolderDisplayId: (string) $request->input('source_folder_display_id'),
 				targetGroupDisplayId: (string) $request->input('target_group_display_id'),
 				targetFolderDisplayId: $request->input('target_folder_display_id') ? (string) $request->input('target_folder_display_id') : null,
+				documentOverwriteDisplayId: $request->input('document_overwrite_display_id') ?? []
 			);
 
 			$this->documentFolderCopyService->handle($dto);
@@ -131,13 +134,13 @@ class DocumentController extends Controller {
 			]);
 
 		} catch (\Throwable $e) {
-			\Log::error('[DocumentController][store] ', [
+			\Log::error('[DocumentController][copy] ', [
 				'error' => $e->getMessage(),
 			]);
 
 			return response()->json([
-				'status'  => true,
-				'message' => __('document.copy_failed'),
+				'status'  => false,
+				'message' => $e->getMessage() ?: __('document.copy_failed'),
 			], 500);
 		}
 
@@ -179,6 +182,7 @@ class DocumentController extends Controller {
 	}
 
 	public function destroy(Request $request) {
+		
 		try {
 			$input = new DocumentDeleteInputDto(
 				actorId: (int) $request->user()->id,
@@ -215,7 +219,7 @@ class DocumentController extends Controller {
 		}
 	}
 
-	public function checkExistingFile(DocumentStoreRequest $request) {
+	public function checkUploadConflicts(DocumentStoreRequest $request) {
 		try {
 			$meta = $request->input('meta', []);
 
@@ -232,7 +236,6 @@ class DocumentController extends Controller {
 			);
 
 			$conflicts = $this->documentCheckExistFileService->handle($inputDto);
-
 			return response()->json([
 				'data'    => [
 					'conflicts' => $conflicts,
@@ -278,4 +281,39 @@ class DocumentController extends Controller {
 			], 200);
 		}
 	}
+
+	public function checkCopyConflicts(Request $request) {
+		try {
+
+			$dto = new DocumentFolderCopyInputDto(
+				actorId: (int) $request->user()->id,
+				lockVersion: (int) $request->input('lock_version'),
+				sourceGroupDisplayId: (string) $request->input('source_group_display_id'),
+				sourceFolderDisplayId: (string) $request->input('source_folder_display_id'),
+				targetGroupDisplayId: (string) $request->input('target_group_display_id'),
+				targetFolderDisplayId: $request->input('target_folder_display_id') ? (string) $request->input('target_folder_display_id') : null,
+				documentOverwriteDisplayId: []
+			);
+
+			$duplicateFiles = $this->documentFolderCopyConflictService->handle($dto);
+			return response()->json([
+				'status' => true,
+				'data'   => [
+					'conflicts' => $duplicateFiles,
+				],
+			]);
+
+		} catch (\Throwable $e) {
+			\Log::error('[DocumentController][store] ', [
+				'error' => $e->getMessage(),
+			]);
+
+			return response()->json([
+				'status'  => true,
+				'message' => __('document.copy_failed'),
+			], 500);
+		}
+
+	}
+
 }

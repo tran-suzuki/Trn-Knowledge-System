@@ -9,6 +9,7 @@ class DocumentFolderCopyInputDto {
 		public readonly string $sourceGroupDisplayId,
 		public readonly string $sourceFolderDisplayId,
 		public readonly string $targetGroupDisplayId,
-		public readonly string $targetFolderDisplayId,
+		public readonly ?string $targetFolderDisplayId = null,
+		public readonly ?array $documentOverwriteDisplayId = [],
 	) {}
 }

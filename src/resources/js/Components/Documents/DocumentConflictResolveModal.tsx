@@ -1,5 +1,5 @@
 import { useDocumentStore } from '@/stores/document/documentStore';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import type { ConflictActionMap, UploadItem } from '@/domains/document/documentList';
 
 type ConflictResolveModalProps = {
@@ -7,13 +7,31 @@ type ConflictResolveModalProps = {
 };
 
 const DocumentConflictResolveModal: React.FC<ConflictResolveModalProps> = ({ uploadDocument }) => {
-	const { conflicts, setShowConflictModal, uploadItems } = useDocumentStore();
+	const { conflicts, setShowConflictModal, showConflictModal, uploadItems } = useDocumentStore();
 	const [actions, setActions] = useState<ConflictActionMap>({});
+	const initializedIndexes = useRef<Set<number>>(new Set());
 
 	useEffect(() => {
-		const init: ConflictActionMap = {};
-		conflicts.forEach((c) => (init[c.index] = 'skip'));
-		setActions(init);
+		if (conflicts.length === 0) {
+			setActions({});
+			initializedIndexes.current.clear();
+			return;
+		}
+		
+		setActions((prevActions) => {
+			const newActions = { ...prevActions };
+			let hasChanges = false;
+			
+			conflicts.forEach((c) => {
+				if (!initializedIndexes.current.has(c.index)) {
+					newActions[c.index] = 'skip';
+					initializedIndexes.current.add(c.index);
+					hasChanges = true;
+				}
+			});
+			
+			return hasChanges ? newActions : prevActions;
+		});
 	}, [conflicts]);
 
 	const confirm = (map: ConflictActionMap) => {
@@ -30,6 +48,7 @@ const DocumentConflictResolveModal: React.FC<ConflictResolveModalProps> = ({ upl
 		return;
 	};
 
+
 	return (
 		<div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 			<div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6">
@@ -39,31 +58,54 @@ const DocumentConflictResolveModal: React.FC<ConflictResolveModalProps> = ({ upl
 
 				{/* list */}
 				<div className="border rounded-md divide-y mb-4">
-					{conflicts.map((item) => (
-						<div key={item.index} className="flex items-center gap-6 px-4 py-3">
-							<label className="flex items-center gap-1">
-								<input
-									type="radio"
-									name={`action-${item.index}`}
-									checked={actions[item.index] === 'skip'}
-									onChange={() => setActions((p) => ({ ...p, [item.index]: 'skip' }))}
-								/>
-								スキップ
-							</label>
+					{conflicts.map((item) => {
+						const currentAction = actions[item.index] || 'skip';
+						const isSkip = currentAction === 'skip';
+						const isOverwrite = currentAction === 'overwrite';
+						const radioGroupName = `action-${item.index}`;
+						
+						return (
+							<div key={item.index} className="flex items-center gap-6 px-4 py-3">
+								<label className="flex items-center gap-1">
+									<input
+										type="radio"
+										id={`${radioGroupName}-skip`}
+										name={radioGroupName}
+										value="skip"
+										checked={isSkip}
+										onChange={() => {
+											setActions((prev) => {
+												const newActions = { ...prev };
+												newActions[item.index] = 'skip';
+												return newActions;
+											});
+										}}
+									/>
+									スキップ
+								</label>
 
-							<label className="flex items-center gap-1">
-								<input
-									type="radio"
-									name={`action-${item.index}`}
-									checked={actions[item.index] === 'overwrite'}
-									onChange={() => setActions((p) => ({ ...p, [item.index]: 'overwrite' }))}
-								/>
-								上書き
-							</label>
+								<label className="flex items-center gap-1">
+									<input
+										type="radio"
+										id={`${radioGroupName}-overwrite`}
+										name={radioGroupName}
+										value="overwrite"
+										checked={isOverwrite}
+										onChange={() => {
+											setActions((prev) => {
+												const newActions = { ...prev };
+												newActions[item.index] = 'overwrite';
+												return newActions;
+											});
+										}}
+									/>
+									上書き
+								</label>
 
-							<span className="text-sm text-gray-700 truncate">{item.display_path}</span>
-						</div>
-					))}
+								<span className="text-sm text-gray-700 truncate">{item.displayPath}</span>
+							</div>
+						);
+					})}
 				</div>
 
 				{/* note */}
@@ -90,14 +132,22 @@ const DocumentConflictResolveModal: React.FC<ConflictResolveModalProps> = ({ upl
 					<div className="flex gap-2">
 						<button
 							className="px-4 py-2 border rounded"
-							onClick={() => confirm(Object.fromEntries(conflicts.map((c) => [c.index, 'skip'])))}
+							onClick={() => {
+								const allSkip = Object.fromEntries(conflicts.map((c) => [c.index, 'skip']));
+								setActions(allSkip);
+								confirm(allSkip);
+							}}
 						>
 							すべてスキップ
 						</button>
 
 						<button
 							className="px-4 py-2 bg-yellow-500 text-white rounded"
-							onClick={() => confirm(Object.fromEntries(conflicts.map((c) => [c.index, 'overwrite'])))}
+							onClick={() => {
+								const allOverwrite = Object.fromEntries(conflicts.map((c) => [c.index, 'overwrite']));
+								setActions(allOverwrite);
+								confirm(allOverwrite);
+							}}
 						>
 							すべて上書き
 						</button>

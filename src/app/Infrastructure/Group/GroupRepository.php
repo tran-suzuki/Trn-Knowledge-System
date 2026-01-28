@@ -191,7 +191,7 @@ class GroupRepository implements GroupRepositoryInterface {
 		if ($input->cursor !== null) {
 			$query->where(function ($q) use ($input) {
 				$q->where('latest_msg.last_message_id', '<', $input->cursor)
-					->orWhereNull('latest_msg.last_message_id'); // để sau này kéo tới phần null
+					->orWhereNull('latest_msg.last_message_id'); // For pagination to handle null values
 			});
 		}
 

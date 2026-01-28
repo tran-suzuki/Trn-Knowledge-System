@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { jaValidation as msg } from '@/lang/ja';
 import { useDocumentStore } from '@/stores/document/documentStore';
 import { DndContext, DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
+import DocumentConflictResolveModal from '@/Components/Documents/DocumentConflictResolveModal';
 import {
 	DocumentFolder,
 	DocumentGroup,
@@ -12,6 +13,7 @@ import {
 	DropTarget,
 } from '@/domains/document/documentList';
 import { documentRepository } from '@/infrastructure/document/documentRepository';
+import { mapCopyConflictItemDtoArrayToDomain } from '@/infrastructure/document/documentListMapper';
 
 interface GroupSidebarProps {
 	onGetGroup: () => void;
@@ -24,7 +26,14 @@ const DocumentGroupSidebar: React.FC<GroupSidebarProps> = ({ onGetGroup }) => {
 		selectedFolderDisplayId,
 		setSelectedGroupDisplayId,
 		setSelectedFolderDisplayId,
+		showConflictModal,
+		setConflicts,
+		setCopyConflicts,
+		setShowConflictModal,
+		setShowUploadModal,
+		setDocumentFolderCopy,
 		setLoading,
+		setShowCopyConflictModal,
 	} = useDocumentStore();
 
 	const dndId = {
@@ -47,6 +56,18 @@ const DocumentGroupSidebar: React.FC<GroupSidebarProps> = ({ onGetGroup }) => {
 				return;
 			}
 			toast.success(msg.document.copied);
+		} catch (error) {
+			toast.error(msg.document.copyFailed);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const checkCopyDuplicateFolder = async (input: DocumentFolderCopy) => {
+		setLoading(true);
+		try {
+			const copyFolderRes = await documentRepository.checkExistFolderGroupTarget(input);
+			return copyFolderRes;
 		} catch (error) {
 			toast.error(msg.document.copyFailed);
 		} finally {
@@ -132,12 +153,28 @@ const DocumentGroupSidebar: React.FC<GroupSidebarProps> = ({ onGetGroup }) => {
 				lockVersion: drag.lockVersion,
 				targetGroupDisplayId: drop.targetGroupDisplayId,
 				targetFolderDisplayId: drop.type === 'folder' ? drop.targetFolderDisplayId : null,
+				documentOverwriteDisplayId: [],
 			};
 
 			try {
-				setIsCopying(true);
-				await copyFolderApi(payload);
-				await onGetGroup();
+				// copy to do
+				const resultCheckDuplicate = await checkCopyDuplicateFolder(payload);
+
+				if (!resultCheckDuplicate.status) {
+					return;
+				}
+
+				const copyConflicts = resultCheckDuplicate?.data?.conflicts;
+				if (copyConflicts && copyConflicts.length > 0) {
+					const mappedConflicts = mapCopyConflictItemDtoArrayToDomain(copyConflicts);
+					setShowCopyConflictModal(true);
+					setCopyConflicts(mappedConflicts);
+					setDocumentFolderCopy(payload);
+				} else {
+					// setIsCopying(true);
+					await copyFolderApi(payload);
+					await onGetGroup();
+				}
 			} finally {
 				setIsCopying(false);
 			}
@@ -260,7 +297,7 @@ const DocumentGroupSidebar: React.FC<GroupSidebarProps> = ({ onGetGroup }) => {
 					<ul>
 						{group.folders.map((folder) => (
 							<li key={folder.displayId}>
-								<FolderItem node={folder} groupDisplayId={group.displayId} level={1} />
+								<FolderItem node={folder} groupDisplayId={group.displayId} level={1} /> {group.id}
 							</li>
 						))}
 					</ul>
@@ -271,7 +308,7 @@ const DocumentGroupSidebar: React.FC<GroupSidebarProps> = ({ onGetGroup }) => {
 
 	return (
 		<DndContext onDragEnd={onDragEnd}>
-			<div className="h-screen w-64 bg-white border-r border-gray-200 p-4 lg:block hidden">
+			<div className="h-screen w-64 bg-white border-r border-gray-200 p-4 lg:block hidden overflow-y-auto">
 				<h2 className="text-lg font-semibold mb-4">Groups</h2>
 
 				{isCopying && <div className="text-xs text-gray-500 mb-2">Copying…</div>}

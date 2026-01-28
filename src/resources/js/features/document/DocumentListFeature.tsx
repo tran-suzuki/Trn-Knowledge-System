@@ -11,6 +11,7 @@ import DocumentSearch from '@/Components/Documents/DocumentSearch';
 import DocumentList from '@/Components/Documents/DocumentList';
 import DocumentUploadFileModal from '@/Components/Documents/DocumentUploadFileModal';
 import DocumentConflictResolveModal from '@/Components/Documents/DocumentConflictResolveModal';
+import DocumentCopyConflictResolveModal from '@/Components/Documents/DocumentCopyConflictResolveModal';
 import { Loading } from '@/Components/Common/Loading';
 
 export const DocumentListFeature: React.FC = () => {
@@ -23,8 +24,10 @@ export const DocumentListFeature: React.FC = () => {
 		showUploadModal,
 		setDocuments,
 		showConflictModal,
+		showCopyConflictModal,
 		setShowUploadModal,
 		setShowConflictModal,
+		setShowCopyConflictModal,
 		groups,
 		setBreadcrumb,
 		triggerReload,
@@ -172,6 +175,8 @@ export const DocumentListFeature: React.FC = () => {
 				{showUploadModal && <DocumentUploadFileModal uploadDocument={uploadDocument} />}
 
 				{showConflictModal && <DocumentConflictResolveModal uploadDocument={uploadDocument} />}
+
+				{showCopyConflictModal && <DocumentCopyConflictResolveModal />}
 
 				<Loading />
 			</div>

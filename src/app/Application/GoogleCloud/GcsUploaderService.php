@@ -4,16 +4,18 @@ use Google\Cloud\Storage\StorageClient;
 use Illuminate\Http\UploadedFile;
 use RuntimeException;
 
-final class GcsUploaderService {
+final class GcsUploaderService
+{
 	private $bucket;
 
 	private const SIMPLE_UPLOAD_LIMIT = 100 * 1024 * 1024; // 100MB
-	private const CHUNK_SIZE          = 8 * 1024 * 1024; // 8MB
+	private const CHUNK_SIZE = 8 * 1024 * 1024; // 8MB
 
-	public function __construct() {
+	public function __construct()
+	{
 		$storage = new StorageClient([
 			'projectId' => env('GOOGLE_CLOUD_PROJECT_ID'),
-			'keyFile'   => json_decode(
+			'keyFile' => json_decode(
 				file_get_contents(env('GOOGLE_CLOUD_KEY_FILE')),
 				true
 			),
@@ -24,9 +26,10 @@ final class GcsUploaderService {
 		);
 	}
 
-	public function uploadFile(array $gcsItem): array {
+	public function uploadFile(array $gcsItem): array
+	{
 		try {
-			$file    = $gcsItem['file'];
+			$file = $gcsItem['file'];
 			$gcsPath = $gcsItem['gcsPath'];
 
 			if (!$file instanceof UploadedFile || !$file->isValid()) {
@@ -45,18 +48,22 @@ final class GcsUploaderService {
 
 			return [
 				'document_id' => $gcsItem['documentId'],
-				'gcs_path'    => $gcsPath,
-				'status'      => 'UPLOADED',
-				'size'        => $file->getSize(),
-				'mime_type'   => $file->getMimeType(),
+				'gcs_path' => $gcsPath,
+				'status' => 'UPLOADED',
+				'size' => $file->getSize(),
+				'mime_type' => $file->getMimeType(),
 			];
 		} catch (\Throwable $th) {
+			\Log::error('[GcsUploaderService][uploadFile] ', [
+				'error' => $th->getMessage(),
+				'gcs_path' => $gcsItem['gcsPath'] ?? null,
+			]);
 			throw $th;
 		}
-
 	}
 
-	private function simpleUpload(UploadedFile $file, string $gcsPath): void {
+	private function simpleUpload(UploadedFile $file, string $gcsPath): void
+	{
 		$stream = fopen($file->getRealPath(), 'r');
 
 		if ($stream === false) {
@@ -65,7 +72,7 @@ final class GcsUploaderService {
 
 		try {
 			$this->bucket->upload($stream, [
-				'name'     => $gcsPath,
+				'name' => $gcsPath,
 				'metadata' => [
 					'contentType' => $file->getMimeType() ?? 'application/octet-stream',
 				],
@@ -109,25 +116,25 @@ final class GcsUploaderService {
 		array $gcsItem,
 	): void {
 		try {
-			$groupId     = $gcsItem['groupId'];
+			$groupId = $gcsItem['groupId'];
 			$gcsFilePath = $gcsItem['gcsPath'];
-			$file        = $gcsItem['file'];
-			$fileType    = $file->getType();
-			$mimeType    = $file->getMimeType();
-			$fileSize    = $file->getSize();
+			$file = $gcsItem['file'];
+			$fileType = $file->getType();
+			$mimeType = $file->getMimeType();
+			$fileSize = $file->getSize();
 
-			$documentId   = $gcsItem['metadataName'];
+			$documentId = $gcsItem['metadataName'];
 			$metadataPath = "metadata_{$groupId}/{$documentId}.jsonl";
-			$isMedia      = in_array(explode('/', $mimeType)[0], ['video', 'audio']);
-			$fullGcsUri   = sprintf('gs://%s/%s', env('GOOGLE_CLOUD_STORAGE_BUCKET'), $gcsFilePath);
-			$contentData  = [];
+			$isMedia = in_array(explode('/', $mimeType)[0], ['video', 'audio']);
+			$fullGcsUri = sprintf('gs://%s/%s', env('GOOGLE_CLOUD_STORAGE_BUCKET'), $gcsFilePath);
+			$contentData = [];
 
 			if ($isMedia) {
 				//GeminiService summari video/audio
 				$geminiService = new GeminiService();
-				$geminiResult  = $geminiService->summarizeMultimedia($gcsFilePath, $mimeType);
+				$geminiResult = $geminiService->summarizeMultimedia($gcsFilePath, $mimeType);
 				$summariResult = data_get($geminiResult, 'candidates.0.content.parts.0.text') ?? '要約なし';
-				$contentData   = [
+				$contentData = [
 					'mimeType' => 'text/plain',
 					'rawBytes' => base64_encode($summariResult),
 				];
@@ -135,25 +142,25 @@ final class GcsUploaderService {
 			} else {
 				$contentData = [
 					'mimeType' => $mimeType,
-					'uri'      => $fullGcsUri,
+					'uri' => $fullGcsUri,
 				];
 			}
 
 			$metadata = [
-				'id'         => $documentId,
+				'id' => $documentId,
 				'structData' => [
-					'group_id'     => $groupId,
-					'document_id'  => $documentId,
-					'file_path'    => $gcsFilePath,
-					'file_name'    => $gcsItem['documentName'],
-					'file_type'    => $fileType,
-					'mime_type'    => $mimeType,
-					'size'         => $fileSize,
-					'created_at'   => now()->toISOString(),
-					'summary'      => $isMedia ? $summariResult ?? '要約なし' : '',
+					'group_id' => (string)$groupId,
+					'document_id' => $documentId,
+					'file_path' => $gcsFilePath,
+					'file_name' => $gcsItem['documentName'],
+					'file_type' => $fileType,
+					'mime_type' => $mimeType,
+					'size' => $fileSize,
+					'created_at' => now()->toISOString(),
+					'summary' => $isMedia ? $summariResult ?? '要約なし' : '',
 					'original_uri' => $fullGcsUri,
 				],
-				'content'    => $contentData,
+				'content' => $contentData,
 			];
 
 			$jsonLine = json_encode(
@@ -162,7 +169,7 @@ final class GcsUploaderService {
 			) . "\n";
 
 			$a = $this->bucket->upload($jsonLine, [
-				'name'     => $metadataPath,
+				'name' => $metadataPath,
 				'metadata' => [
 					'contentType' => 'application/x-jsonlines',
 				],
@@ -170,82 +177,117 @@ final class GcsUploaderService {
 
 		} catch (\Throwable $e) {
 			\Log::error('[GcsUploaderService] uploadMetadata failed', [
-				'file'    => $gcsFilePath,
+				'file' => $gcsFilePath,
 				'groupId' => $groupId,
-				'error'   => $e->getMessage(),
-				'trace'   => $e->getTraceAsString(),
+				'error' => $e->getMessage(),
+				'trace' => $e->getTraceAsString(),
 			]);
 			throw $e;
 		}
 	}
-	public function uploadMetadata2(
-		string $groupId,
-		string $gcsFilePath,
-		string $mimeType,
-		string $fileType,
-		string $fileName,
-		int $fileSize
+
+	public function copyFile(
+		string $sourceDisplayId,
+		string $sourcePath,
+		string $destinationDisplayId,
+		string $destinationPath
 	): void {
 		try {
-			$documentId   = md5($groupId . '_' . $gcsFilePath);
-			$metadataPath = "metadata_{$groupId}/{$documentId}.jsonl";
-			$isMedia      = in_array($fileType, ['video', 'audio']);
-			$fullGcsUri   = sprintf('gs://%s/%s', env('GOOGLE_CLOUD_STORAGE_BUCKET'), $gcsFilePath);
-			$contentData  = [];
-
-			if ($isMedia) {
-				//GeminiService summari video/audio
-				$geminiService = new GeminiService();
-				$geminiResult  = $geminiService->summarizeMultimedia($gcsFilePath, $mimeType);
-				$summariResult = data_get($geminiResult, 'candidates.0.content.parts.0.text') ?? '要約なし';
-				$contentData   = [
-					'mimeType' => 'text/plain',
-					'rawBytes' => base64_encode($summariResult),
-				];
-
-			} else {
-				$contentData = [
-					'mimeType' => $mimeType,
-					'uri'      => $fullGcsUri,
-				];
+			$sourceObject = $this->bucket->object($sourcePath);
+			if (!$sourceObject->exists()) {
+				throw new RuntimeException("Source file does not exist: {$sourcePath}");
 			}
-
-			$metadata = [
-				'id'         => $documentId,
-				'structData' => [
-					'group_id'     => $groupId,
-					'document_id'  => $documentId,
-					'file_path'    => $gcsFilePath,
-					'file_name'    => $fileName,
-					'file_type'    => $fileType,
-					'mime_type'    => $mimeType,
-					'size'         => $fileSize,
-					'created_at'   => now()->toISOString(),
-					'summary'      => $isMedia ? $summariResult ?? '要約なし' : '',
-					'original_uri' => $fullGcsUri,
-				],
-				'content'    => $contentData,
-			];
-			$jsonLine = json_encode(
-				$metadata,
-				JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-			) . "\n";
-
-			$this->bucket->upload($jsonLine, [
-				'name'     => $metadataPath,
-				'metadata' => [
-					'contentType' => 'application/x-jsonlines',
-				],
+			$sourceObject->copy($this->bucket, [
+				'name' => $destinationPath
 			]);
+			$sourceMetadataPath = "metadata_" . (string) $sourceDisplayId[0] . "/{$sourceDisplayId}.jsonl";
+			$destinationMetadataPath = "metadata_" . (string) $destinationDisplayId[0] . "/{$destinationDisplayId}.jsonl";
+			$oldMetadata = $this->readMetadata($sourceMetadataPath);
+
+			$newMetadata = $this->transformMetadataForCopy(
+				$oldMetadata,
+				$destinationDisplayId,
+				$destinationMetadataPath
+			);
+
+			$this->uploadCopiedMetadata(
+				$newMetadata,
+				$destinationMetadataPath
+			);
+
 
 		} catch (\Throwable $e) {
-			\Log::error('[GcsUploaderService] uploadMetadata failed', [
-				'file'    => $gcsFilePath,
-				'groupId' => $groupId,
-				'error'   => $e->getMessage(),
-				'trace'   => $e->getTraceAsString(),
+			\Log::error('[GcsUploaderService] copyFile failed', [
+				'from' => $sourcePath,
+				'to' => $destinationPath,
+				'error' => $e->getMessage()
 			]);
 			throw $e;
 		}
+	}
+
+	public function readMetadata(string $metadataPath): array
+	{
+		$object = $this->bucket->object($metadataPath);
+
+		if (!$object->exists()) {
+			throw new RuntimeException("Metadata not found: {$metadataPath}");
+		}
+
+		return json_decode(
+			trim($object->downloadAsString()),
+			true
+		);
+	}
+
+	public function transformMetadataForCopy(
+		array $oldMetadata,
+		string $newDocumentId,
+		string $newGcsPath
+	): array {
+		$newUri = sprintf(
+			'gs://%s/%s',
+			env('GOOGLE_CLOUD_STORAGE_BUCKET'),
+			$newGcsPath
+		);
+
+		// root id
+		$oldMetadata['id'] = $newDocumentId;
+
+		// structData
+		$oldMetadata['structData'] = array_merge(
+			$oldMetadata['structData'],
+			[
+				'group_id' => (string) $newDocumentId[0],
+				'document_id' => $newDocumentId,
+				'file_path' => $newGcsPath,
+				'original_uri' => $newUri,
+				'created_at' => now()->toISOString(),
+			]
+		);
+
+		// content
+		if (isset($oldMetadata['content']['uri'])) {
+			// non-media
+			$oldMetadata['content']['uri'] = $newUri;
+		}
+		return $oldMetadata;
+	}
+
+	public function uploadCopiedMetadata(
+		array $metadata,
+		string $path
+	): void {
+		$jsonLine = json_encode(
+			$metadata,
+			JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+		) . "\n";
+
+		$this->bucket->upload($jsonLine, [
+			'name' => $path,
+			'metadata' => [
+				'contentType' => 'application/x-jsonlines',
+			],
+		]);
 	}
 }

@@ -1,10 +1,11 @@
 import React, { useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { jaValidation as msg } from '@/lang/ja';
-import { UploadCloud } from 'lucide-react';
+import { UploadCloud, File, Folder } from 'lucide-react';
 import { documentRepository } from '@/infrastructure/document/documentRepository';
 import { useDocumentStore } from '@/stores/document/documentStore';
 import { UploadItem } from '@/domains/document/documentList';
+import { mapConflictItemDtoArrayToDomain } from '@/infrastructure/document/documentListMapper';
 
 // Types for legacy WebKit FileSystem API
 type WebkitEntry = any; // FileSystemEntry (non-standard)
@@ -229,9 +230,10 @@ const DocumentUploadFileModal: React.FC<DocumentUploadFileModalProps> = ({ uploa
 				items,
 			});
 			if (res.data.data.conflicts && res.data.data.conflicts.length > 0) {
+				const mappedConflicts = mapConflictItemDtoArrayToDomain(res.data.data.conflicts);
 				setUploadItems(items);
-				setConflicts(res.data.data.conflicts);
-				setShowUploadModal(true);
+				setConflicts(mappedConflicts);
+				//setShowUploadModal(true);
 				setShowConflictModal(true);
 				return;
 			}
@@ -253,7 +255,7 @@ const DocumentUploadFileModal: React.FC<DocumentUploadFileModalProps> = ({ uploa
 		<div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center z-50">
 			<div className="bg-white p-8 rounded-lg shadow-xl w-11/12 md:w-1/2 lg:w-1/3">
 				<div className="w-full max-w-3xl">
-					<h2 className="text-2xl font-bold mb-4">ファイルをアップロード </h2>
+					<h2 className="text-2xl font-bold mb-4">ファイルをアップロード</h2>
 					{/* Hidden inputs */}
 					<input
 						ref={fileInputRef}
@@ -281,37 +283,56 @@ const DocumentUploadFileModal: React.FC<DocumentUploadFileModalProps> = ({ uploa
 						}}
 					/>
 
-					{/* Single upload box */}
+					{/* Upload box with 2 buttons */}
 					<div
-						onClick={openFilePicker}
 						onDrop={onDrop}
 						onDragOver={onDragOver}
 						onDragLeave={onDragLeave}
 						className={[
-							'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer select-none ',
+							'border-2 border-dashed rounded-lg p-4 select-none ',
 							isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50',
 						].join(' ')}
-						role="button"
-						tabIndex={0}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') openFilePicker();
-						}}
 					>
-						<button
-							type="button"
-							onClick={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-								openFolderPicker();
-							}}
-						>
-							<div className="flex flex-col items-center gap-2">
-								<UploadCloud className="w-12 h-12 text-gray-400 mb-3" />
-								<p className="text-gray-500 text-sm">ファイルをドラッグ＆ドロップするか、クリックして選択 </p>
+						<div className="flex gap-4">
+							{/* File upload button */}
+							<button
+								type="button"
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									openFilePicker();
+								}}
+								className="flex-1 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:bg-gray-100 transition-colors"
+							>
+								<div className="flex flex-col items-center gap-2">
+									<File className="w-10 h-10 text-blue-500 mb-2" />
+									<p className="text-gray-700 font-medium text-sm">ファイルを選択</p>
+									<p className="text-gray-500 text-xs">複数ファイルを選択できます</p>
+								</div>
+							</button>
 
-								{dropHint && <div className="mt-2 text-xs text-orange-600">{dropHint}</div>}
-							</div>
-						</button>
+							{/* Folder upload button */}
+							<button
+								type="button"
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									openFolderPicker();
+								}}
+								className="flex-1 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:bg-gray-100 transition-colors"
+							>
+								<div className="flex flex-col items-center gap-2">
+									<Folder className="w-10 h-10 text-green-500 mb-2" />
+									<p className="text-gray-700 font-medium text-sm">フォルダを選択</p>
+									<p className="text-gray-500 text-xs">フォルダ全体をアップロード</p>
+								</div>
+							</button>
+						</div>
+
+						<div className="mt-4 text-center">
+							<p className="text-gray-500 text-sm">または、ファイルをドラッグ＆ドロップ</p>
+							{dropHint && <div className="mt-2 text-xs text-orange-600">{dropHint}</div>}
+						</div>
 					</div>
 
 					{/* Selected list */}

@@ -46,7 +46,7 @@ class DocumentCheckExistFileService {
 		$fileCache   = []; // key: group|parentId|fileName   => fileId|null
 
 		/* ===============================
-		 * 1. Validate từng file
+		 * 1. Validate each file
 		 * =============================== */
 		foreach ($meta as $index => $item) {
 

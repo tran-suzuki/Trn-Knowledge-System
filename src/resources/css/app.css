@@ -5,7 +5,7 @@
 .react-datepicker-popper {
     z-index: 9999 !important;
 }
-/* Fix placeholder không hiển thị hết trong react-datepicker */
+
 .react-datepicker-wrapper,
 .react-datepicker__input-container,
 .react-datepicker__input-container input {

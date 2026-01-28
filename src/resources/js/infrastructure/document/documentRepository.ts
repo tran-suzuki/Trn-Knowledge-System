@@ -24,30 +24,16 @@ export const documentRepository = {
 
 	checkExistDocument(input: UploadDocument) {
 		const formData = mapUploadDocumentDomainToDto(input);
-		const token = document
-		.querySelector('meta[name="csrf-token"]')
-		?.getAttribute('content');
-		return axios.post(route('documents.check.existing_file'), formData, {
+		return axios.post(route('documents.check.upload_conflicts'), formData, {
 			withCredentials: true,
-		headers: {
-		'X-CSRF-TOKEN': token ?? '',
-		},
 		});
 	},
 
 	upLoadDocument(input: UploadDocument) {
-	const formData = mapUploadDocumentDomainToDto(input);
-	
-	const token = document
-		.querySelector('meta[name="csrf-token"]')
-		?.getAttribute('content');
-	
-	return axios.post(route('documents.store'), formData, {
-		withCredentials: true,
-		headers: {
-		'X-CSRF-TOKEN': token ?? '',
-		},
-	});
+		const formData = mapUploadDocumentDomainToDto(input);
+		return axios.post(route('documents.store'), formData, {
+			withCredentials: true,
+		});
 	},
 
 	async search(filter: DocumentListFilter) {
@@ -70,5 +56,11 @@ export const documentRepository = {
 			data: payload,
 		});
 		return res.data as { status: 'true' | 'false'; message?: string };
+	},
+
+	async checkExistFolderGroupTarget(input: DocumentFolderCopy) {
+		const query = mapDocumentFolderCopyDomainToDto(input);
+		const res = await axios.get(route('documents.check.copy_conflicts', query));
+		return res.data;
 	},
 };

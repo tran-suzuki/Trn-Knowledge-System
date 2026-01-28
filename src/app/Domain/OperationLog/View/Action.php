@@ -31,6 +31,7 @@ final class Action {
 	public const GROUP_MEMBER_CHANGE_ROLE = 'GROUP_MEMBER_CHANGE_ROLE';
 
 	public const DOCUMENT_CREATE = 'DOCUMENT_CREATE';
+
 	public const DOCUMENT_COPY   = 'DOCUMENT_COPY';
 	public const DOCUMENT_DELETE = 'DOCUMENT_DELETE';
 

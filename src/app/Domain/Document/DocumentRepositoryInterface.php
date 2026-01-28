@@ -21,6 +21,8 @@ interface DocumentRepositoryInterface {
 
 	public function getById(int $id): DocumentR;
 
+	public function getByGroupId(int $groupId): DocumentFolderList;
+	
 	public function store(DocumentR $document): int;
 
 	public function updateFileMeta(DocumentUpdateInput $document): void;

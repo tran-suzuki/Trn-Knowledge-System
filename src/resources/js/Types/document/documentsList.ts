@@ -21,6 +21,7 @@ export interface DocumentFolderCopyDto {
 	lock_version: number;
 	target_folder_display_id: string | null;
 	target_group_display_id: string;
+	document_overwrite_display_id: string[];
 }
 
 export type UploadDocumentMetaDto = {
@@ -65,4 +66,18 @@ export type DeleteDocumentRequestDto = {
 
 export type CheckLockVersionRequestDto = {
 	lock_version: number;
+};
+
+export type ConflictItemDto = {
+	index: number;
+	display_path: string; 
+	file_name: string;
+	existing_file_id: number;
+	fk_parent_id: number;
+};
+
+export type CopyConflictItemDto = {
+	index: number;
+	file_name: string;
+	display_id: string;
 };

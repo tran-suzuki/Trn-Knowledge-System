@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 
-import type { DocumentGroup, DocumentListItem, ConflictItem, UploadItem } from '@/domains/document/documentList';
+import type {
+	DocumentGroup,
+	DocumentListItem,
+	ConflictItem,
+	CopyConflictItem,
+	UploadItem,
+	DocumentFolderCopy,
+} from '@/domains/document/documentList';
 
 interface DocumentState {
 	groups: DocumentGroup[];
@@ -9,9 +16,12 @@ interface DocumentState {
 	selectedFolderDisplayId: string | null;
 	showUploadModal: boolean;
 	showConflictModal: boolean;
+	showCopyConflictModal: boolean;
 	documents: DocumentListItem[];
 	isListView: boolean;
 	conflicts: ConflictItem[];
+	copyConflicts: CopyConflictItem[];
+	documentFolderCopy: DocumentFolderCopy;
 	uploadItems: UploadItem[];
 	formData: FormData;
 	breadcrumb: [];
@@ -24,9 +34,12 @@ interface DocumentState {
 	setSelectedFolderDisplayId: (selectedFolderDisplayId: string | null) => void;
 	setShowUploadModal: (open: boolean) => void;
 	setShowConflictModal: (open: boolean) => void;
+	setShowCopyConflictModal: (open: boolean) => void;
 	setDocuments: (data: DocumentListItem[]) => void;
 	setIsListView: (isList: boolean) => void;
 	setConflicts: (data: ConflictItem[]) => void;
+	setCopyConflicts: (data: CopyConflictItem[]) => void;
+	setDocumentFolderCopy: (data: DocumentFolderCopy) => void;
 	setUploadItems: (data: UploadItem[]) => void;
 	setFormData: (data: FormData) => void;
 	setBreadcrumb: (data: []) => void;
@@ -40,8 +53,11 @@ export const useDocumentStore = create<DocumentState>((set) => ({
 	selectedFolderDisplayId: null,
 	showUploadModal: false,
 	showConflictModal: false,
+	showCopyConflictModal: false,
 	documents: [],
 	conflicts: [],
+	copyConflicts: [],
+	documentFolderCopy: null,
 	isListView: false,
 	uploadItems: null,
 	formData: null,
@@ -55,8 +71,11 @@ export const useDocumentStore = create<DocumentState>((set) => ({
 	setSelectedFolderDisplayId: (folderDisplayId: string | null) => set({ selectedFolderDisplayId: folderDisplayId }),
 	setShowUploadModal: (open) => set({ showUploadModal: open }),
 	setShowConflictModal: (open) => set({ showConflictModal: open }),
+	setShowCopyConflictModal: (open) => set({ showCopyConflictModal: open }),
 	setDocuments: (data: DocumentListItem[]) => set({ documents: data }),
 	setConflicts: (data: ConflictItem[]) => set({ conflicts: data }),
+	setCopyConflicts: (data: CopyConflictItem[]) => set({ copyConflicts: data }),
+	setDocumentFolderCopy: (data: DocumentFolderCopy) => set({ documentFolderCopy: data }),
 	setIsListView: (isList) => set({ isListView: isList }),
 	setUploadItems: (data: UploadItem[]) => set({ uploadItems: data }),
 	setFormData: (data: FormData) => set({ formData: data }),

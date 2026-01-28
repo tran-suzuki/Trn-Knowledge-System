@@ -21,6 +21,7 @@ export interface DocumentFolderCopy {
 	lockVersion: number;
 	targetFolderDisplayId: string | null;
 	targetGroupDisplayId: string;
+	documentOverwriteDisplayId: string[];
 }
 
 //===========================
@@ -85,10 +86,17 @@ export type UploadItem = {
 
 export type ConflictItem = {
 	index: number;
-	display_path: string; // full path từ group → file
-	file_name: string;
-	existing_file_id: number;
-	fk_parent_id: number;
+	displayPath: string;
+	fileName: string;
+	existingFileId: number;
+	fkParentId: number;
+	action?: ConflictAction;
+};
+
+export type CopyConflictItem = {
+	index: number;
+	fileName: string;
+	displayId: string;
 };
 
 export type ConflictAction = 'overwrite' | 'skip';

@@ -169,7 +169,7 @@ class DocumentRepository implements DocumentRepositoryInterface {
 		$folderIdMap  = [];
 		$rootParentId = $batch->rootParentId();
 		/**
-		 * 1️⃣ Insert folders trước (get real ID)
+		 * 1️⃣ Insert folders first (get real ID)
 		 */
 		foreach ($batch->documents() as $document) {
 			if ($document->type !== 'folder') {
@@ -249,7 +249,6 @@ class DocumentRepository implements DocumentRepositoryInterface {
 		$model = DtDocuments::query()
 			->where('display_id', $displayId)
 			->firstOrFail();
-
 		return new DocumentR(
 			id: (int) $model->id,
 			lockVersion: (int) $model->lock_version,
@@ -259,6 +258,7 @@ class DocumentRepository implements DocumentRepositoryInterface {
 			name: $model->name,
 			size: $model->size,
 			mimeType: $model->mimeType,
+			fkGroupId: $model->fk_group_id,
 		);
 	}
 
@@ -286,16 +286,42 @@ class DocumentRepository implements DocumentRepositoryInterface {
 			->whereNull('deleted_at')
 			->orderBy('id')
 			->get();
+		$items = $rows->map(fn($model) => new DocumentR(
+			id: (int) $model->id,
+			lockVersion: (int) $model->lock_version,
+			displayId: $model->display_id,
+			fkParentId: (int) $model->fk_parent_id,
+			fkGroupId: (int) $model->fk_group_id,
+			type: $model->type,
+			name: $model->name,
+			path: $model->path,
+			size: $model->size,
+			mimeType: $model->mime_type,
+		))->all();
+
+		return new DocumentFolderList(
+			items: $items
+		);
+	}
+
+	public function getByGroupId(int $groupId): DocumentFolderList {
+		$rows = DtDocuments::query()
+			->where('fk_group_id', $groupId)
+			->whereNull('deleted_at')
+			->orderBy('id')
+			->get();
 
 		$items = $rows->map(fn($model) => new DocumentR(
 			id: (int) $model->id,
 			lockVersion: (int) $model->lock_version,
 			displayId: $model->display_id,
 			fkParentId: (int) $model->fk_parent_id,
+			fkGroupId: (int) $model->fk_group_id,
 			type: $model->type,
 			name: $model->name,
+			path: $model->path,
 			size: $model->size,
-			mimeType: $model->mimeType,
+			mimeType: $model->mime_type,
 		))->all();
 
 		return new DocumentFolderList(

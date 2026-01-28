@@ -3,6 +3,7 @@
 namespace App\Application\Document;
 
 use App\Application\Document\Dto\In\DocumentDeleteInputDto;
+use App\Application\GoogleCloud\GcsDeleteService;
 use App\Application\OperationLog\Dto\In\OperationLogStoreInputDto;
 use App\Application\OperationLog\OperationLogRegisterService;
 use App\Domain\Document\DocumentRepositoryInterface;
@@ -15,19 +16,27 @@ class DocumentDeleteService {
 	public function __construct(
 		private DocumentRepositoryInterface $documentRepository,
 		private OperationLogRegisterService $operationLogRegisterService,
+		private GcsDeleteService $gcsDeleteService
 	) {
 	}
 
 	public function handle(DocumentDeleteInputDto $dto): void {
 		try {
 			$ids = [];
-			DB::transaction(function () use ($dto, &$ids) {
+			$paths = [];
+			DB::transaction(function () use ($dto, &$ids, &$paths) {
 
 				$document = $this->documentRepository->getByDisplayId($dto->displayId);
 				$ids[]    = (int) $document->id;
+				
+				if($document->path != "") {
+					$paths[] = (string) $document->path;
+					$paths[] = "metadata_{$document->fkGroupId}/{$document->fkGroupId}{$document->displayId}.jsonl";
+				}
+				
 				if ($document->isFolder()) {
 
-					$this->getChildren($document->id, $ids);
+					$this->getChildren($document->id, $ids, $paths);
 
 					$documentDomainInput = new DocumentDeleteMultiInput(
 						documentIds: $ids
@@ -42,6 +51,11 @@ class DocumentDeleteService {
 					$domainGroup = $document->delete($documentDomainInput);
 
 					$this->documentRepository->delete($domainGroup);
+				}
+				if(count($paths)) {
+					foreach($paths as $path) {
+						$this->gcsDeleteService->deleteFile($path);
+					}
 				}
 
 				// Log
@@ -80,7 +94,8 @@ class DocumentDeleteService {
 
 	private function getChildren(
 		int $parentId,
-		array &$ids
+		array &$ids,
+		array &$paths
 	): void {
 		try {
 			$children = $this->documentRepository->getByParentId($parentId);
@@ -88,6 +103,11 @@ class DocumentDeleteService {
 			foreach ($children->items as $child) {
 
 				$ids[] = (int) $child->id;
+				
+				if($child->path != "") {
+					$paths[] = (string) $child->path;
+					$paths[] = "metadata_{$child->fkGroupId}/{$child->fkGroupId}{$child->displayId}.jsonl";
+				}
 
 				if ($child->isFolder()) {
 					$this->getChildren(

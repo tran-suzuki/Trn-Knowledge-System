@@ -75,8 +75,9 @@ Route::middleware(['auth'])->prefix('documents')->name('documents.')->group(func
 	Route::post('/copy', [DocumentController::class, 'copy'])->name('copy');
 	Route::post('/store', [DocumentController::class, 'store'])->name('store');
 	Route::delete('/', [DocumentController::class, 'destroy'])->name('destroy');
-	Route::post('/', [DocumentController::class, 'checkExistingFile'])->name('check.existing_file');
+	Route::post('/check-upload-conflicts', [DocumentController::class, 'checkUploadConflicts'])->name('check.upload_conflicts');
 	Route::post('/{dtDocuments:display_id}/check-lock-version', [DocumentController::class, 'checkLock'])->name('check.lock_version');
+	Route::get('/check-copy-conflicts', [DocumentController::class, 'checkCopyConflicts'])->name('check.copy_conflicts');
 });
 
 //todo

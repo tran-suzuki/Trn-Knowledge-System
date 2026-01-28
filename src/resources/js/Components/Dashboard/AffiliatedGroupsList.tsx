@@ -164,7 +164,7 @@ const AffiliatedGroupsList: React.FC = () => {
 
 			{error && (
 				<div className="p-3 border rounded bg-red-50 mb-4">
-					<div className="text-red-700 text-sm">Lỗi: {error}</div>
+					<div className="text-red-700 text-sm"> {error}</div>
 					<button onClick={retry} className="mt-2 px-3 py-1 border rounded">
 						もう一度お試しください。
 					</button>
