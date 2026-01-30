@@ -19,7 +19,7 @@ const RecentChatHistory: React.FC = () => {
 					chatSessions.map((chat) => (
 						<div key={chat.displayId} className="flex justify-between items-center p-4 border-b">
 							<div>
-								<h4 className="font-medium">{chat.title}111</h4>
+								<h4 className="font-medium">{chat.title}</h4>
 								<p className="text-sm text-gray-500">
 									{chat.groupName} ・ {chat.updatedAt}
 								</p>

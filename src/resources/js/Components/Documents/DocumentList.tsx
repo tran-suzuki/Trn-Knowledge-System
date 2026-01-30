@@ -61,13 +61,17 @@ const DocumentList: React.FC<DocumentListProps> = ({ onGetGroup }) => {
 				});
 
 				if (!res?.status) {
+					setDocuments([]);
+					setNextCursor(null);
+					setHasMore(false);
 					toast.error(msg.document.noData);
 					return;
 				}
 
-				const { items, nextCursor, hasMore } = res.data;
+				const { items, nextCursor, hasMore } = res.data ?? {};
+				const list = Array.isArray(items) ? items : [];
 
-				setDocuments((prev) => (append ? [...prev, ...items] : items));
+				setDocuments((prev) => (append ? [...prev, ...list] : list));
 				setNextCursor(nextCursor ?? null);
 				setHasMore(Boolean(hasMore));
 			} finally {
