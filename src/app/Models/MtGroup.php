@@ -21,6 +21,10 @@ class MtGroup extends Model {
 		'lock_version',
 	];
 
+	public function getRouteKeyName(): string {
+		return 'display_id';
+	}
+
 	public function company() {
 		return $this->belongsTo(MtCompany::class, 'fk_company_id');
 	}
