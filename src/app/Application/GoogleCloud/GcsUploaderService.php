@@ -149,7 +149,7 @@ final class GcsUploaderService
 			$metadata = [
 				'id' => $documentId,
 				'structData' => [
-					'group_id' => (string)$groupId,
+					'group_id' => (string) $groupId,
 					'document_id' => $documentId,
 					'file_path' => $gcsFilePath,
 					'file_name' => $gcsItem['documentName'],

@@ -26,7 +26,6 @@ interface DocumentState {
 	formData: FormData;
 	breadcrumb: [];
 	reloadToken: number;
-	isLoading: boolean;
 
 	setInitialGroups: (data: DocumentGroup[]) => void;
 	setKeyword: (keyword: string) => void;
@@ -43,7 +42,6 @@ interface DocumentState {
 	setUploadItems: (data: UploadItem[]) => void;
 	setFormData: (data: FormData) => void;
 	setBreadcrumb: (data: []) => void;
-	setLoading: (loading: boolean) => void;
 }
 
 export const useDocumentStore = create<DocumentState>((set) => ({

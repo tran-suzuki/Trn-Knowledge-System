@@ -13,6 +13,7 @@ import DocumentUploadFileModal from '@/Components/Documents/DocumentUploadFileMo
 import DocumentConflictResolveModal from '@/Components/Documents/DocumentConflictResolveModal';
 import DocumentCopyConflictResolveModal from '@/Components/Documents/DocumentCopyConflictResolveModal';
 import { Loading } from '@/Components/Common/Loading';
+import { useCommonStore } from '@/stores/common/commonStore';
 
 export const DocumentListFeature: React.FC = () => {
 	const {
@@ -31,8 +32,9 @@ export const DocumentListFeature: React.FC = () => {
 		groups,
 		setBreadcrumb,
 		triggerReload,
-		setLoading,
 	} = useDocumentStore();
+
+	const { setLoading } = useCommonStore();
 
 	const getGroup = useCallback(async () => {
 		const res = await documentRepository.getDocumentGroupTree();

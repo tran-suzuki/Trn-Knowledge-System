@@ -23,6 +23,11 @@ class DtChatSession extends Model {
 		'lock_version',
 	];
 
+	
+	public function getRouteKeyName(): string {
+		return 'display_id';
+	}
+	
 	/* =========================
 	 * Relationships
 	 * ========================= */

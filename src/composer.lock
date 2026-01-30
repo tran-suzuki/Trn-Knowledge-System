@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc175bd1c8d849774c64d050a75b46de",
+    "content-hash": "de8620fa1022fb303390c36bb640122d",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -875,6 +875,55 @@
                 "source": "https://github.com/googleapis/google-cloud-php-core/tree/v1.69.0"
             },
             "time": "2025-12-06T04:51:04+00:00"
+        },
+        {
+            "name": "google/cloud-discoveryengine",
+            "version": "v1.10.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/googleapis/google-cloud-php-discoveryengine.git",
+                "reference": "a8cf078c902fce4919a2f9783b5a65f4a69c7671"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-discoveryengine/zipball/a8cf078c902fce4919a2f9783b5a65f4a69c7671",
+                "reference": "a8cf078c902fce4919a2f9783b5a65f4a69c7671",
+                "shasum": ""
+            },
+            "require": {
+                "google/gax": "^1.38.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.0"
+            },
+            "suggest": {
+                "ext-grpc": "Enables use of gRPC, a universal high-performance RPC framework created by Google.",
+                "ext-protobuf": "Provides a significant increase in throughput over the pure PHP protobuf implementation. See https://cloud.google.com/php/grpc for installation instructions."
+            },
+            "type": "library",
+            "extra": {
+                "component": {
+                    "id": "cloud-discoveryengine",
+                    "path": "DiscoveryEngine",
+                    "target": "googleapis/google-cloud-php-discoveryengine"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Google\\Cloud\\DiscoveryEngine\\": "src",
+                    "GPBMetadata\\Google\\Cloud\\Discoveryengine\\": "metadata"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Google Cloud Discovery Engine Client for PHP",
+            "support": {
+                "source": "https://github.com/googleapis/google-cloud-php-discoveryengine/tree/v1.10.1"
+            },
+            "time": "2026-01-23T22:57:13+00:00"
         },
         {
             "name": "google/cloud-speech",

@@ -7,6 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "google/cloud-discoveryengine": "^1.10",
         "google/cloud-speech": "^2.3",
         "google/cloud-storage": "^1.49",
         "google/cloud-videointelligence": "^2.1",

@@ -8,7 +8,7 @@ export const dashboardRepository = {
 	},
 
 	goToChatSession(displayId: string) {
-		router.get(route('chats.session.index', { DtChatSession: displayId }));
+		router.get(route('chats.session.index', { dtChatSession: displayId }));
 	},
 
 	async getChatSessions() {

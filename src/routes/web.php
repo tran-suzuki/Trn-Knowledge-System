@@ -9,6 +9,7 @@ use App\Http\Controllers\GroupMember\GroupMemberController;
 use App\Http\Controllers\Group\GroupController;
 use App\Http\Controllers\OperationLog\OperationLogController;
 use App\Http\Controllers\User\UserController;
+use App\Application\GoogleCloud\RagService;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -60,7 +61,9 @@ Route::middleware(['auth'])->prefix('groups')->name('groups.')->group(function (
 
 Route::middleware(['auth'])->prefix('chats')->name('chats.')->group(function () {
 	Route::get('/group/{mtGroup:display_id}', [ChatController::class, 'index'])->name('index');
-	Route::get('/session/{DtChatSession:display_id}', [ChatSessionController::class, 'index'])->name('session.index');
+	Route::get('/session/{dtChatSession:display_id}', [ChatController::class, 'sessionIndex'])->name('session.index');
+	Route::get('/session/{dtChatSession:display_id}/messages', [ChatController::class, 'messages'])->name('session.messages');
+	Route::post('/ask', [ChatController::class, 'askRag'])->name('ask');
 });
 
 Route::middleware(['auth'])->prefix('audit-logs')->name('audit_logs.')->group(function () {

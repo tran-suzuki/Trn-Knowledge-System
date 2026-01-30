@@ -43,8 +43,10 @@ FILESYSTEM_DISK=gcs
 GOOGLE_CLOUD_PROJECT_ID=hybrid-text-477900-i6
 GOOGLE_CLOUD_STORAGE_BUCKET=ai_knowledge_system
 GOOGLE_CLOUD_KEY_FILE=/var/www/storage/app/google-cloud/google-cloud-key.json
-VERTEX_AI_DATA_STORE_ID=ai-knowledge-system-data-store_1768793275314
+GOOGLE_APPLICATION_CREDENTIALS=/var/www/storage/app/google-cloud/google-cloud-key.json
+VERTEX_AI_DATA_STORE_ID=document-data-store_1769586684480
 VERTEX_AI_LOCATION=global
+VERTEX_AI_ENGINE_ID=document-rag_1769587894711
 
 ```
 

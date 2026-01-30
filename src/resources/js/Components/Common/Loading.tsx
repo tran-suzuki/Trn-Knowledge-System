@@ -1,7 +1,7 @@
-import { useDocumentStore } from '@/stores/document/documentStore';
+import { useCommonStore } from '@/stores/common/commonStore';
 
 export const Loading = () => {
-	const isLoading = useDocumentStore((s) => s.isLoading);
+	const isLoading = useCommonStore((s) => s.isLoading);
 
 	if (!isLoading) return null;
 
